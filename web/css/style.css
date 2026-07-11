@@ -592,8 +592,8 @@ main { counter-reset: stage; }
   color: #6d5316;
 }
 
-/* ---- responsive: five tabs need breathing room before the phone layout ---- */
-@media (max-width: 1360px) {
+/* ---- responsive: seven tabs need breathing room before the phone layout ---- */
+@media (max-width: 1680px) {
   #top-bar .title span { display: none; }   /* the logo carries the brand */
   .nav-tabs { gap: 3px; }
   .nav-tabs a { padding: 6px 9px; font-size: 11.5px; }
@@ -1204,10 +1204,58 @@ body.data-verbatim .vb-demo { display: none; }
 }
 
 /* ============================================================
+   ATTENTION ANIMATION PAGE (attention.html)
+   ============================================================ */
+.anim-main { max-width: 1240px; margin: 0 auto; padding: 34px 22px 60px; }
+.anim-intro { max-width: 780px; margin: 0 auto 26px; text-align: center; }
+.anim-kicker {
+  font-family: var(--mono); font-size: 12px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.14em; color: var(--violet);
+  margin: 0 0 10px;
+}
+.anim-intro h1 {
+  font-family: var(--display); font-weight: 800;
+  font-size: clamp(28px, 4.2vw, 44px); line-height: 1.12;
+  margin: 0 0 14px;
+}
+.anim-lead { font-size: 17px; line-height: 1.6; color: var(--ink-soft); margin: 0 0 10px; }
+.anim-hint { font-size: 14px; line-height: 1.6; color: var(--muted); margin: 0; }
+.anim-hint kbd {
+  font-family: var(--mono); font-size: 12px; padding: 1px 6px;
+  border: 1.5px solid var(--line-strong); border-bottom-width: 3px;
+  border-radius: 6px; background: var(--panel);
+}
+/* the Stage engine fills its nearest positioned ancestor and letterboxes
+   inside it — give it a fixed-height framed card to live in */
+.anim-frame {
+  position: relative;
+  height: clamp(420px, calc(100vh - var(--top-h) - 170px), 820px);
+  border: 2px solid var(--ink); border-radius: 14px; overflow: hidden;
+  box-shadow: var(--shadow-hard);
+}
+#anim-root { position: absolute; inset: 0; }
+.anim-after { max-width: 780px; margin: 26px auto 0; }
+.anim-after p { font-size: 15.5px; line-height: 1.65; color: var(--ink-soft); }
+@media (max-width: 760px) {
+  .anim-main { padding: 20px 12px 40px; }
+  .anim-frame { height: clamp(300px, 62vh, 560px); border-radius: 10px; }
+  .anim-hint { display: none; }   /* keyboard hints mean nothing on touch */
+}
+
+/* ---- phrase-picker row (the dropdown lives below the header, not in it) ---- */
+#strip-bar .example-picker { flex: 0 0 auto; margin-right: 16px; }
+#picker-bar {
+  display: flex; align-items: center; justify-content: center;
+  padding: 9px 22px;
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  border-bottom: 1.5px solid var(--line-strong);
+}
+
+/* ============================================================
    PRINT (mainly the teacher's guide; sane everywhere)
    ============================================================ */
 @media print {
-  #top-bar .nav-tabs, #top-bar .top-right, #rail, #strip-bar,
+  #top-bar .nav-tabs, #top-bar .top-right, #rail, #strip-bar, #picker-bar,
   .guide-actions, .hero-scroll, .load-error { display: none !important; }
   #top-bar { position: static; box-shadow: none; border-bottom: 2px solid #000; }
   body { background: #fff; }

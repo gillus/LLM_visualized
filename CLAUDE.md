@@ -33,12 +33,16 @@ generate/
   tuned_lens.pt      # cached tuned lens (created by train_tuned_lens.py; optional)
 web/
   index.html      # scrolly sections + sticky chrome (CDN: d3, scrollama)
+  attention.html  # "Come funziona l'attenzione?" — 60s guided animation (CDN: React UMD)
   css/style.css
   js/
     main.js       # orchestrator: load example, mount stages, wire Scrollama, state
     decode.js     # pure helpers: decode ragged_q8 attention, softmax(T), interpolation
     stages/       # one renderer per pipeline stage (tokens, embedding, layers,
                   #   attention, prediction)
+    anim/         # attention.html's timeline engine + scene, PRE-TRANSPILED plain JS
+                  #   (authored as JSX in a claude.ai artifact; edit the .js directly
+                  #   or re-transpile offline — no Babel in the browser)
   examples/
     manifest.json # [{id,title,prompt}] → header dropdown
     <id>.json     # one precomputed example per file
@@ -175,7 +179,16 @@ questions with answer hints, the Paris experiment as a boxed activity, big
 misconceptions, student FAQ; print CSS hides the chrome), shared glossary
 (web/js/glossary.js: ~20 plain-language terms with `.aa-detail` technical
 extras, mounted as a collapsible `<details>` footer on every page and
-pre-opened on the teacher's guide so it prints).
+pre-opened on the teacher's guide so it prints), "Come funziona l'attenzione?"
+standalone tab (web/attention.html: a 64-second chaptered animation — sentence
+«Ai rigori finisce la partita di calcio», the ambiguous «calcio» vector gets
+moved toward its sport sense by attention; React UMD from CDN renders
+web/js/anim/engine.js + scene.js, plain JS pre-transpiled offline from a
+claude.ai artifact's JSX, fonts/letterbox re-themed to the site; autoplay off,
+pauses at chapter ends, overlay is click/tap-to-start), nav order
+game → attention → story → architecture → training → teachers (+ external
+prompt guide), and the phrase picker moved out of the header into a row below
+it (inside #strip-bar on index, its own #picker-bar on architecture).
 
 Not yet built (roughly by classroom value):
 - Mobile polish for the attention grid.

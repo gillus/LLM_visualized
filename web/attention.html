@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f5efe2" />
+  <title>Come funziona l'attenzione? — la mappa dei significati</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,650;0,9..144,800;1,9..144,500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Spline+Sans+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+</head>
+<body>
+  <header id="top-bar">
+    <div class="title">
+      <svg class="logo" viewBox="0 0 26 26" aria-hidden="true">
+        <rect x="3"  y="17" width="20" height="4" rx="2" class="lg1"/>
+        <rect x="6"  y="11" width="14" height="4" rx="2" class="lg2"/>
+        <rect x="9"  y="5"  width="8"  height="4" rx="2" class="lg3"/>
+      </svg>
+      <span>Come funziona l'attenzione?</span>
+    </div>
+    <nav class="nav-tabs">
+      <a href="embedding-game.html">Gioco della mappa delle parole</a>
+      <a href="attention.html" class="active">Come funziona l'attenzione?</a>
+      <a href="index.html">La storia della previsione</a>
+      <a href="architecture.html">Architettura</a>
+      <a href="training.html">Come si addestra</a>
+      <a href="teachers.html">Per gli insegnanti</a>
+      <a href="guida-prompt.html" class="tab-external" target="_blank" rel="noopener" title="Si apre in una nuova scheda">Guida ai prompt&nbsp;&#8599;</a>
+    </nav>
+    <div class="top-right">
+      <div class="aa-toggle" role="group" aria-label="Livello di lettura">
+        <button type="button" class="aa-btn" data-aa-mode="simple" title="Parole semplici, pochi numeri">Aa<span class="aa-word"> semplice</span></button>
+        <button type="button" class="aa-btn" data-aa-mode="detail" title="Terminologia tecnica e numeri reali">Aa<span class="aa-word"> dettagli</span></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="anim-main">
+    <section class="anim-intro">
+      <p class="anim-kicker">Un film di 60 secondi · si guida con la barra spaziatrice</p>
+      <h1>L'attenzione: come una parola trova il suo significato</h1>
+      <p class="anim-lead">Nella frase <em>«Ai rigori finisce la partita di calcio»</em>,
+        la parola <strong>calcio</strong> da sola è ambigua: lo sport, o l'elemento
+        chimico? Questa animazione mostra il trucco che risolve il dubbio —
+        l'<strong>attenzione</strong>: la parola guarda indietro alle parole già
+        lette, dà più peso a quelle utili («partita», «rigori») e il suo punto
+        sulla mappa dei significati si sposta verso il senso giusto.</p>
+      <p class="anim-hint">Premi <kbd>spazio</kbd> (o ▶) per partire: il film si
+        ferma da solo alla fine di ogni capitolo, così potete parlarne prima di
+        continuare. Con <kbd>←</kbd>/<kbd>→</kbd> ci si muove piano; i capitoli
+        in basso sono cliccabili.</p>
+    </section>
+
+    <section class="anim-frame">
+      <div id="anim-root" role="application" aria-label="Animazione: come funziona l'attenzione"></div>
+    </section>
+
+    <section class="anim-after">
+      <p>Quello che hai appena visto è un disegno semplificato, ma il meccanismo è
+        reale: succede dentro ogni strato del modello, per ogni parola. Vuoi vederlo
+        sui numeri veri? Nella <a href="index.html">storia della previsione</a> c'è la
+        fase Attenzione con le mappe misurate sul modello, e nell'<a
+        href="architecture.html">architettura</a> puoi guardare i colori dei token
+        mescolarsi strato dopo strato.</p>
+      <p class="aa-note aa-detail">I pesi che compaiono sulle frecce sono i pesi di
+        attenzione: per ogni coppia di token il modello confronta una <em>query</em>
+        e una <em>key</em> (due proiezioni del vettore), passa i punteggi in un
+        softmax e usa i pesi risultanti per fare una media pesata dei <em>value</em>.
+        Il vettore «spostato» dell'animazione è proprio quella media, sommata al
+        vettore di partenza dal collegamento residuo.</p>
+    </section>
+  </main>
+
+  <script>
+    // On file:// the browser blocks ES modules and fetch, so the page would
+    // stay silently incomplete. Classic inline scripts still run — explain why.
+    if (location.protocol === "file:") {
+      var b = document.createElement("div");
+      b.className = "load-error";
+      b.innerHTML = "<strong>Questa pagina non può funzionare completamente se aperta direttamente da una cartella.</strong> " +
+        "Il browser ne blocca il caricamento di codice e dati. Esegui invece il sito: " +
+        "lancia <code>python3 -m http.server</code> dentro la cartella <code>web/</code>, " +
+        "poi apri <code>http://localhost:8000</code> — oppure usa il link ospitato online.";
+      document.body.prepend(b);
+    }
+  </script>
+  <script src="js/anim/engine.js"></script>
+  <script src="js/anim/scene.js"></script>
+  <script>
+    (function () {
+      var root = document.getElementById("anim-root");
+      if (window.React && window.ReactDOM && window.SceneMappa) {
+        ReactDOM.createRoot(root).render(React.createElement(window.SceneMappa));
+      } else {
+        // React arrives from a CDN — offline classrooms deserve a real message.
+        var b = document.createElement("div");
+        b.className = "load-error";
+        b.innerHTML = "<strong>L'animazione non si è caricata.</strong> " +
+          "Questa pagina scarica una piccola libreria da internet la prima volta: " +
+          "controlla la connessione e ricarica.";
+        root.replaceWith(b);
+      }
+    })();
+  </script>
+  <script type="module">
+    import { initAaToggle } from "./js/aa.js";
+    import { mountGlossary } from "./js/glossary.js";
+    initAaToggle();
+    mountGlossary();
+  </script>
+</body>
+</html>
