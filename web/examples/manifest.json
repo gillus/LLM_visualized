@@ -1,0 +1,32 @@
+[
+  {
+    "id": "cat-sat",
+    "title": "The cat sat on the\u2026",
+    "prompt": "The cat sat on the"
+  },
+  {
+    "id": "hippo-water",
+    "title": "The hungry hippopotamus jumped into the\u2026",
+    "prompt": "The hungry hippopotamus jumped into the"
+  },
+  {
+    "id": "maria-she",
+    "title": "When Maria dropped her cup, she\u2026",
+    "prompt": "When Maria dropped her cup, she"
+  },
+  {
+    "id": "france-capital",
+    "title": "The capital city of France is called\u2026",
+    "prompt": "The capital city of France is called"
+  },
+  {
+    "id": "paris-capital",
+    "title": "The capital of France is\u2026",
+    "prompt": "The capital of France is"
+  },
+  {
+    "id": "sky-color",
+    "title": "The sky is\u2026",
+    "prompt": "The sky is"
+  }
+]

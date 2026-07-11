@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f5efe2" />
+  <title>Gioco della mappa delle parole — dove va a finire?</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,650;0,9..144,800;1,9..144,500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Spline+Sans+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+</head>
+<body>
+  <header id="top-bar">
+    <div class="title">
+      <svg class="logo" viewBox="0 0 26 26" aria-hidden="true">
+        <rect x="3"  y="17" width="20" height="4" rx="2" class="lg1"/>
+        <rect x="6"  y="11" width="14" height="4" rx="2" class="lg2"/>
+        <rect x="9"  y="5"  width="8"  height="4" rx="2" class="lg3"/>
+      </svg>
+      <span>Gioco della mappa delle parole</span>
+    </div>
+    <nav class="nav-tabs">
+      <a href="index.html">La storia della previsione</a>
+      <a href="architecture.html">Architettura</a>
+      <a href="embedding-game.html" class="active">Gioco della mappa delle parole</a>
+      <a href="training.html">Come si addestra</a>
+      <a href="teachers.html">Per gli insegnanti</a>
+    </nav>
+    <div class="top-right">
+      <div class="aa-toggle" role="group" aria-label="Livello di lettura">
+        <button type="button" class="aa-btn" data-aa-mode="simple" title="Parole semplici, pochi numeri">Aa<span class="aa-word"> semplice</span></button>
+        <button type="button" class="aa-btn" data-aa-mode="detail" title="Terminologia reale e numeri grezzi">Aa<span class="aa-word"> dettagli</span></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="game-main">
+    <section class="game-intro">
+      <h2>Dove va a finire questa parola?</h2>
+      <p class="arch-lead">Il modello dà a ogni parola un posto su una gigantesca
+        <strong>mappa dei significati</strong> — le parole che vogliono dire cose
+        simili finiscono vicine tra loro. Qui sotto vedi una fetta di quella mappa,
+        con alcune parole familiari già posizionate. Ti diamo una parola nuova:
+        <strong>trascinala</strong> dove pensi che vada (oppure tocca un punto
+        sulla mappa). Poi ti mostriamo dove l'ha messa davvero il modello, e quanto
+        ci sei andato vicino.</p>
+    </section>
+
+    <div class="game-board">
+      <div class="game-stage">
+        <div class="game-tray" id="game-tray">
+          <span class="tray-lbl">La tua parola</span>
+          <span class="word-chip" id="word-chip" draggable="false" tabindex="0">—</span>
+          <span class="tray-hint" id="tray-hint">trascinala sulla mappa — oppure tocca un punto</span>
+        </div>
+        <div id="game-plane"></div>
+      </div>
+
+      <aside class="game-side">
+        <div class="panel score-card">
+          <div class="score-row big"><span>Punteggio</span><span id="score-total">0</span></div>
+          <div class="score-row"><span>Round</span><span id="round-count">– / –</span></div>
+          <div class="progress-pips" id="progress-pips" aria-label="Risultati dei round"></div>
+        </div>
+
+        <div class="panel game-feedback" id="game-feedback">
+          <p class="feedback-empty">Posiziona la parola per vedere come è andata.</p>
+        </div>
+
+        <div class="game-actions">
+          <button type="button" id="next-btn" class="game-btn" disabled>Parola successiva →</button>
+          <button type="button" id="replay-btn" class="game-btn ghost" hidden>Gioca ancora</button>
+        </div>
+
+        <div class="panel legend-card">
+          <h3 class="panel-h">I gruppi sulla mappa</h3>
+          <ul class="legend" id="cat-legend"></ul>
+          <p class="legend-note">Le parole che il modello considera simili stanno
+            vicine tra loro. Passa il mouse su un punto per leggere le parole
+            nascoste dai vicini.</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    // On file:// the browser blocks ES modules and fetch, so the page would
+    // stay silently blank. Classic inline scripts still run — explain why.
+    if (location.protocol === "file:") {
+      var b = document.createElement("div");
+      b.className = "load-error";
+      b.innerHTML = "<strong>Questa pagina non funziona se aperta direttamente da una cartella.</strong> " +
+        "Il browser blocca il caricamento del suo codice e dei suoi dati. Devi invece pubblicarla: " +
+        "esegui <code>python3 -m http.server</code> dentro la cartella <code>web/</code>, " +
+        "poi apri <code>http://localhost:8000</code> — oppure usa il link online.";
+      document.body.prepend(b);
+    }
+  </script>
+  <script type="module" src="js/game.js"></script>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f5efe2" />
+  <title>Da pappagallo a partner — come si addestra un modello</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,650;0,9..144,800;1,9..144,500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Spline+Sans+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/scrollama@3"></script>
+</head>
+<body>
+  <!-- sticky chrome -->
+  <header id="top-bar">
+    <div class="title">
+      <svg class="logo" viewBox="0 0 26 26" aria-hidden="true">
+        <rect x="3"  y="17" width="20" height="4" rx="2" class="lg1"/>
+        <rect x="6"  y="11" width="14" height="4" rx="2" class="lg2"/>
+        <rect x="9"  y="5"  width="8"  height="4" rx="2" class="lg3"/>
+      </svg>
+      <span>Da pappagallo a&nbsp;partner</span>
+    </div>
+    <nav class="nav-tabs">
+      <a href="index.html">La storia della previsione</a>
+      <a href="architecture.html">Architettura</a>
+      <a href="embedding-game.html">Gioco della mappa delle parole</a>
+      <a href="training.html" class="active">Come si addestra</a>
+      <a href="teachers.html">Per gli insegnanti</a>
+    </nav>
+    <div class="top-right">
+      <div class="aa-toggle" role="group" aria-label="Livello di lettura">
+        <button type="button" class="aa-btn" data-aa-mode="simple" title="Parole semplici, pochi numeri">Aa<span class="aa-word"> semplice</span></button>
+        <button type="button" class="aa-btn" data-aa-mode="detail" title="Terminologia reale e numeri grezzi">Aa<span class="aa-word"> dettagli</span></button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section id="hero">
+      <p class="hero-kicker">Una guida sul campo per crescere una mente artificiale</p>
+      <h1>Da un <span class="hl">pappagallo</span><br/>a un partner.</h1>
+      <p class="hero-lead">Un modello appena nato non è un genio — è un
+        <em>autocompletamento</em> di livello mondiale. Diventare un assistente
+        utile richiede tre scuole, una dopo l'altra. Faremo la stessa identica
+        domanda a ogni fase e guarderemo la risposta crescere.</p>
+      <ol class="hero-pipeline" aria-label="Le tre fasi dell'addestramento">
+        <li style="--c:#d97706">Pre-addestramento</li>
+        <li style="--c:#db2777">Fine-tuning</li>
+        <li style="--c:#16a34a">Rinforzo</li>
+      </ol>
+      <p class="hero-question">La domanda che continueremo a fare:
+        <strong>“Why is the sky blue?”</strong></p>
+      <div class="hero-scroll" aria-hidden="true"><span>scorri</span><svg viewBox="0 0 16 16"><path d="M8 2v10M3.5 8.5 8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </section>
+
+    <!-- ① PRETRAINING -->
+    <section class="scrolly" data-stage="parrot">
+      <div class="viz-sticky"><div class="viz" data-viz="parrot"></div></div>
+      <div class="steps">
+        <div class="step" data-stage="parrot" data-step="intro">
+          <p class="step-kicker">Fase 1 · Pre-addestramento</p>
+          <h2>Leggere (quasi) tutto</h2>
+          <p>Il modello legge una montagna di testi — libri, siti web, codice,
+             Wikipedia — e gioca sempre allo stesso gioco: <strong>indovina la
+             prossima parola</strong>, controlla, correggi. Miliardi di volte.</p>
+          <p>È esattamente il gioco di
+             <a href="index.html">La storia della previsione</a> — solo che qui
+             viene applicato a una biblioteca grande quanto internet.</p>
+          <p class="aa-note aa-detail">Questa è la previsione auto-supervisionata
+             del token successivo su un corpus enorme. Nessuna etichetta scritta
+             da un umano — la “risposta” è sempre solo la parola che è arrivata
+             davvero dopo.</p>
+        </div>
+        <div class="step" data-stage="parrot" data-step="data">
+          <p>La sua intera dieta è testo grezzo — per un modello come questo la
+             ricetta assomiglia più o meno a queste barre. Nessuno gli dice
+             cos'è vero o cos'è educato — impara solo <em>quali parole tendono
+             a seguirne altre</em>.</p>
+          <p class="aa-note aa-detail">Proporzioni illustrative, non la ricetta
+             esatta di SmolLM2 (che si basa soprattutto su testo web educativo,
+             codice e matematica).</p>
+        </div>
+        <div class="step" data-stage="parrot" data-step="ask">
+          <p>E allora cosa succede se gli facciamo semplicemente la nostra
+             domanda? Guarda — non ti <em>risponde</em>. <strong>Continua il
+             testo</strong>, proprio come farebbero proseguire i documenti che
+             ha letto.</p>
+          <p class="aa-note aa-detail"><span class="vb-real">Questo è il
+             <strong>modello base</strong> grezzo (SmolLM2-135M) senza alcuna
+             formattazione da chat — esattamente ciò che produce il
+             pre-addestramento.</span><span
+             class="vb-demo">In questa versione la risposta è un testo scritto
+             a mano al posto del modello base — esegui
+             <code>generate/training.py</code> per usare l'output reale di
+             SmolLM2.</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ② FINE-TUNING -->
+    <section class="scrolly" data-stage="helper">
+      <div class="viz-sticky"><div class="viz" data-viz="helper"></div></div>
+      <div class="steps">
+        <div class="step" data-stage="helper" data-step="intro">
+          <p class="step-kicker">Fase 2 · Fine-tuning</p>
+          <h2>Imparare a rispondere</h2>
+          <p>Poi gli mostriamo centinaia di migliaia di brevi <strong>conversazioni
+             di esempio</strong> — una domanda, abbinata a una buona risposta
+             scritta da una persona. Copia la <em>forma</em>: quando ti chiedono
+             qualcosa, tu rispondi.</p>
+          <p class="aa-note aa-detail">Questo è il fine-tuning supervisionato
+             (SFT) su coppie curate istruzione → risposta. Lo stesso
+             addestramento a prevedere la prossima parola — ma ora su esempi di
+             <em>come essere utili</em>.</p>
+        </div>
+        <div class="step" data-stage="helper" data-step="examples">
+          <p>Ogni scheda è una lezione di buone maniere e buon formato. Dopo un
+             numero sufficiente di esempi, l'abitudine resta.</p>
+        </div>
+        <div class="step" data-stage="helper" data-step="answer">
+          <p>Ora fai la stessa domanda. Cambia tutto — stavolta risponde
+             davvero, in modo chiaro ed educato. <strong>Ma attenzione:</strong>
+             sembrare utile non è lo stesso che avere ragione. Leggi con
+             attenzione…</p>
+          <p class="aa-note aa-detail"><span class="vb-real">Questo è il
+             <strong>modello Instruct</strong> — il modello base dopo l'SFT.
+             Fluente e ben strutturato, eppure leggi bene la sua risposta: può
+             ancora affermare cose false con grande sicurezza.</span><span
+             class="vb-demo">In questa versione la risposta è un testo scritto a
+             mano al posto del modello Instruct — esegui
+             <code>generate/training.py</code> per usare l'output reale di
+             SmolLM2.</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ③ REINFORCEMENT LEARNING -->
+    <section class="scrolly" data-stage="expert">
+      <div class="viz-sticky"><div class="viz" data-viz="expert"></div></div>
+      <div class="steps">
+        <div class="step" data-stage="expert" data-step="intro">
+          <p class="step-kicker">Fase 3 · Apprendimento per rinforzo</p>
+          <h2>Fare pratica con il feedback</h2>
+          <p>Ultima scuola: il modello scrive diverse risposte e riceve un
+             <strong>voto</strong>. Le risposte buone vengono premiate, quelle
+             cattive penalizzate — così il modello si sposta verso il tipo di
+             risposta che ottiene un voto alto. Il voto può arrivare da persone,
+             oppure da un semplice controllo automatico.</p>
+          <p class="aa-note aa-detail">Questo è RLHF / RLVR: un segnale di
+             ricompensa (la preferenza umana, oppure un verificatore) aggiorna il
+             modello verso risposte più premiate — non copiando un obiettivo, ma
+             venendo ricompensato per i propri tentativi.</p>
+        </div>
+        <div class="step" data-stage="expert" data-step="reward">
+          <p><strong>Adesso il voto lo dai tu.</strong> Ecco due risposte alla
+             nostra domanda. Scegli quella che premieresti — poi ti mostreremo
+             quale preferiscono davvero gli addestratori, e perché.</p>
+        </div>
+        <div class="step" data-stage="expert" data-step="verifiable">
+          <p>A volte il voto non richiede nessuna opinione. Per un problema di
+             matematica la ricompensa è semplicemente: <strong>il numero è
+             giusto?</strong> Inseguire quel sì/no è ciò che insegna a un
+             modello a rallentare e a <strong>mostrare il proprio
+             ragionamento</strong>.</p>
+          <p class="aa-note aa-detail">La ricompensa data da un verificatore
+             (RLVR) è il modo in cui vengono addestrati i modelli di
+             “ragionamento”: l'unica cosa premiata è la risposta finale
+             corretta, e scrivere per esteso la catena di passaggi si rivela il
+             modo affidabile per arrivarci.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- OUTRO -->
+    <section id="outro">
+      <p class="step-kicker">la stessa domanda, tre pagelle</p>
+      <h2>Pappagallo → assistente → partner</h2>
+      <p class="outro-lead">Ogni assistente che hai usato ha percorso questa
+        strada: leggere il mondo, imparare a rispondere, poi fare pratica
+        finché non ci arriva. Ecco la nostra domanda a ogni fase.</p>
+      <div id="report-cards"></div>
+      <div class="outro-actions">
+        <a class="btn-primary" href="index.html">Guarda come prevede, parola per parola →</a>
+        <a class="btn-ghost" href="architecture.html">Guarda dentro la macchina ↗</a>
+      </div>
+      <p class="outro-fine"><span class="vb-real">Le fasi 1–2 mostrano l'output
+        reale di SmolLM2 base contro Instruct;</span><span class="vb-demo">Le
+        fasi 1–2 in questa versione sono testi scritti a mano (esegui
+        generate/training.py per l'output reale di SmolLM2);</span> la fase di
+        RL è illustrativa — non si può eseguire RLHF in un browser, e l'idea è
+        ciò che conta.</p>
+    </section>
+  </main>
+
+  <!-- sticky mini-rail / jump nav -->
+  <nav id="rail" aria-label="Vai alla fase">
+    <a class="rail-link active" data-stage="parrot" style="--c:#d97706" href="#" onclick="document.querySelector('[data-stage=parrot]').scrollIntoView();return false">Pre-addestramento</a>
+    <a class="rail-link" data-stage="helper" style="--c:#db2777" href="#" onclick="document.querySelector('[data-stage=helper]').scrollIntoView();return false">Fine-tuning</a>
+    <a class="rail-link" data-stage="expert" style="--c:#16a34a" href="#" onclick="document.querySelector('[data-stage=expert]').scrollIntoView();return false">RL</a>
+  </nav>
+
+  <script>
+    // On file:// the browser blocks ES modules and fetch, so the page would
+    // stay silently blank. Classic inline scripts still run — explain why.
+    if (location.protocol === "file:") {
+      var b = document.createElement("div");
+      b.className = "load-error";
+      b.innerHTML = "<strong>Questa pagina non può funzionare direttamente da una cartella.</strong> " +
+        "Il browser le impedisce di caricare codice e dati. Servila invece così: " +
+        "esegui <code>python3 -m http.server</code> dentro la cartella <code>web/</code>, " +
+        "poi apri <code>http://localhost:8000</code> — oppure usa il link online.";
+      document.body.prepend(b);
+    }
+  </script>
+  <script type="module" src="js/training.js"></script>
+</body>
+</html>

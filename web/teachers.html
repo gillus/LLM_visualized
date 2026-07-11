@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f5efe2" />
+  <title>Guida per gli insegnanti — insegnare come un'IA prevede le parole</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,650;0,9..144,800;1,9..144,500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Spline+Sans+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header id="top-bar">
+    <div class="title">
+      <svg class="logo" viewBox="0 0 26 26" aria-hidden="true">
+        <rect x="3"  y="17" width="20" height="4" rx="2" class="lg1"/>
+        <rect x="6"  y="11" width="14" height="4" rx="2" class="lg2"/>
+        <rect x="9"  y="5"  width="8"  height="4" rx="2" class="lg3"/>
+      </svg>
+      <span>Guida per gli insegnanti</span>
+    </div>
+    <nav class="nav-tabs">
+      <a href="index.html">La storia della previsione</a>
+      <a href="architecture.html">Architettura</a>
+      <a href="embedding-game.html">Gioco della mappa delle parole</a>
+      <a href="training.html">Come si addestra</a>
+      <a href="teachers.html" class="active">Per gli insegnanti</a>
+    </nav>
+    <div class="top-right">
+      <div class="aa-toggle" role="group" aria-label="Livello di lettura">
+        <button type="button" class="aa-btn" data-aa-mode="simple" title="Parole semplici, meno numeri">Aa<span class="aa-word"> semplice</span></button>
+        <button type="button" class="aa-btn" data-aa-mode="detail" title="Terminologia reale e numeri grezzi">Aa<span class="aa-word"> dettagli</span></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="guide-main">
+    <section class="guide-hero">
+      <p class="hero-kicker">Una guida sul campo per l'adulto in aula</p>
+      <h1>Insegnare con questo sito</h1>
+      <p class="guide-lead">Tutto qui è costruito attorno a un'unica idea che
+        i tuoi studenti possono comprendere appieno:
+        <strong>un modello linguistico scrive prevedendo una parola alla
+        volta.</strong> Le quattro schede esplorano questa idea da
+        angolazioni diverse, usando un modello reale (deliberatamente
+        piccolo) — SmolLM2-135M — i cui numeri sono stati calcolati una
+        volta sola, offline, e fissati per la pagina.</p>
+      <div class="guide-actions">
+        <button type="button" class="btn-primary" onclick="window.print()">Stampa questa guida</button>
+      </div>
+    </section>
+
+    <section class="guide-panel">
+      <h2>Prima della lezione: come si comporta il sito</h2>
+      <ul class="guide-list">
+        <li><strong>Niente viene eseguito dal vivo.</strong> Le pagine
+          riproducono dati precalcolati — nessun account, nessuna chat,
+          niente in cui uno studente possa scrivere. Sicuro da
+          distribuire.</li>
+        <li><strong>L'interruttore [Aa]</strong> (in alto a destra, su ogni
+          pagina) passa tra un linguaggio semplice e la modalità dettaglio,
+          che aggiunge terminologia reale, numeri grezzi e approfondimenti
+          "per i curiosi". Scegli la modalità per ogni classe; viene
+          ricordata per dispositivo.</li>
+        <li><strong>Non devi mai guidare con lo scroll su un
+          proiettore.</strong> Ogni elemento visivo controllato dallo
+          scroll ha anche controlli manuali sulla scheda: uno slider degli
+          strati in Strati, slider strato/testa in Attenzione, uno slider
+          della temperatura in Previsione. La mini-barra a destra permette
+          di saltare tra le fasi.</li>
+        <li><strong>Il selettore di frasi</strong> (in alto a destra nelle
+          pagine della storia e dell'architettura) permette di passare tra
+          sei frasi di esempio curate. Due di queste —
+          <em>"The capital of France is…"</em> e <em>"The capital city of
+          France is called…"</em> — sono una coppia intenzionale; vedi
+          l'esperimento qui sotto.</li>
+        <li><strong>Ogni scheda è autonoma.</strong> Una suddivisione che
+          funziona: lezione 1 = La storia della previsione + l'esperimento
+          di Parigi; lezione 2 = Gioco della mappa delle parole (10 min) +
+          Come si addestra; Tutta la macchina come approfondimento per gli
+          studenti che vogliono andare più a fondo.</li>
+        <li><strong>Distribuzione:</strong> usa il link ospitato online. Se
+          apri i file direttamente da una cartella, il browser li blocca
+          (la pagina te lo segnalerà); eseguire il sito in locale richiede
+          un solo comando: <code>python3 -m http.server</code> dentro
+          <code>web/</code>.</li>
+      </ul>
+    </section>
+
+    <section class="guide-panel">
+      <h2>I grandi equivoci da scovare</h2>
+      <p class="guide-note">La maggior parte delle domande degli studenti
+        riconduce a uno di questi. Ogni scheda ti fornisce argomenti contro
+        almeno uno di essi.</p>
+      <ul class="guide-list">
+        <li><strong>"Cerca la risposta da qualche parte."</strong> Non c'è
+          nessun database né alcuna ricerca. Tutto ciò che "sa" è compresso
+          in 135 milioni di numeri che assegnano un punteggio ai candidati
+          per la prossima parola. L'esperimento di Parigi lo rende
+          evidente: un fatto che un motore di ricerca azzeccherebbe subito
+          arriva secondo, dietro alla parola "the".</li>
+        <li><strong>"Capisce le parole come facciamo noi."</strong> Sa
+          quali parole compaiono in compagnia delle stesse altre parole —
+          geometria, non definizioni. La mappa dei significati e il gioco
+          lo rendono concreto.</li>
+        <li><strong>"Se sembra sicuro di sé, ha ragione."</strong> La
+          scheda sull'addestramento mostra il vero modello Instruct
+          rispondere in modo fluente — e confondere la fisica. La
+          scioltezza si impara separatamente dalla verità.</li>
+        <li><strong>"Temperatura più alta = più intelligente."</strong> La
+          temperatura è una manopola del rischio, non dell'intelligenza.
+          Fai lanciare i dadi agli studenti a entrambi gli estremi e
+          osserva i lanci "caldi" uscire dal grafico.</li>
+        <li><strong>"Scrive l'intera risposta in una volta sola."</strong>
+          Il ciclo finale ("Aggiungi e prevedi ancora") mostra che un tema
+          è una parola prevista, ripetuta migliaia di volte.</li>
+      </ul>
+    </section>
+
+    <section class="guide-panel">
+      <h2>Scheda 1 · La storia della previsione <span class="guide-time">~20 min guidati</span></h2>
+      <p class="guide-note">La spina dorsale del sito: una frase seguita
+        attraverso la vera pipeline — Token → Embedding → Strati →
+        Attenzione → Previsione. Frase predefinita: <em>"The cat sat on
+        the…"</em></p>
+      <h3>Obiettivi di apprendimento</h3>
+      <ul class="guide-list">
+        <li>Il testo diventa <strong>token</strong> (numeri), non lettere o parole intere.</li>
+        <li>Il significato è rappresentato come <strong>posizione su una mappa</strong> — le parole simili si trovano vicine.</li>
+        <li>La risposta si costruisce <strong>gradualmente</strong> attraverso 30 strati, e possiamo osservarla formarsi.</li>
+        <li>Il risultato è una <strong>scommessa</strong>, mai una certezza — e scegliere le parole comporta il caso.</li>
+      </ul>
+      <h3>Fai notare questo</h3>
+      <ul class="guide-list">
+        <li>Token: il simbolo ␣ (alcuni token inglobano lo spazio che li
+          precede), e "hippopotamus" che viene spezzata in più pezzi nella
+          frase dell'ippopotamo, mentre "the" mantiene un token tutto per
+          sé. Chiedi il perché prima di spiegarlo: le parole frequenti si
+          guadagnano un token proprio.</li>
+        <li>Strati: le ipotesi sono casuali nei primi strati e si sistemano
+          solo verso la fine. La mappa a sinistra mostra il token che
+          viaggia letteralmente verso la sua risposta.</li>
+        <li>Attenzione: passa a <em>"When Maria dropped her cup, she…"</em>
+          — una testa allo strato 3 traccia la linea da "she" indietro fino
+          a "Maria". Fai notare anche la linea spessa verso la prima
+          parola: è il modello che parcheggia l'attenzione che non gli
+          serve, non interesse reale.</li>
+        <li>Previsione: "bed" vince con appena il 7% — e la famosa "mat" è
+          molto più giù, al 27° posto (0,6%). La barra tenue "tutto il
+          resto" rappresenta insieme le altre ~49.000 parole. Lancia i
+          dadi più volte a freddo, poi a caldo.</li>
+      </ul>
+      <h3>Chiedi alla classe</h3>
+      <dl class="guide-qa">
+        <dt>"Prima di scorrere: quale parola viene dopo 'The cat sat on the…'?"</dt>
+        <dd>Raccogli prima le ipotesi alla lavagna — la classe diventa il
+          modello. La maggior parte dirà "mat"; il colpo di scena che il
+          modello scommette su "bed" (e il perché nessuna delle due sia
+          certa) è il tuo gancio.</dd>
+        <dt>"Perché 'hippopotamus' viene spezzata ma 'the' no?"</dt>
+        <dd>Le parole comuni si guadagnano un token privato; le parole rare
+          vengono assemblate da pezzi riutilizzabili. Lo spazio del
+          vocabolario è un budget limitato.</dd>
+        <dt>"Quando il modello legge 'she', come fa a capire chi sia 'she'?"</dt>
+        <dd>Attenzione: "she" guarda indietro e recupera "Maria". Non è
+          stata programmata nessuna regola grammaticale — questa abitudine
+          è stata imparata.</dd>
+        <dt>"Se 'bed' è solo al 7%, il modello ha sbagliato?"</dt>
+        <dd>No — con ~49.000 opzioni possibili, il 7% è una vittoria
+          schiacciante. Un buon punto per parlare di cosa significhi
+          probabilità.</dd>
+        <dt>"Cosa succederebbe se scegliessimo sempre la parola più sicura?"</dt>
+        <dd>Imposta la temperatura al freddo e lancia i dadi ripetutamente:
+          stessa parola, ogni volta. Deterministico, e spesso noioso — per
+          questo i chatbot veri usano il campionamento.</dd>
+      </dl>
+      <h3>Attenzione a</h3>
+      <p class="guide-note">La mappa dei significati è un'immagine
+        appiattita (2D) di uno spazio a 576 dimensioni — la vicinanza sulla
+        mappa è affidabile, le posizioni esatte no. In modalità dettaglio,
+        il sito lo dice esplicitamente.</p>
+    </section>
+
+    <section class="guide-panel guide-activity">
+      <h2>L'esperimento di Parigi <span class="guide-time">~10 min</span></h2>
+      <p class="guide-note">Il momento "aha" migliore del sito: la prova
+        che il modello prevede <em>testo</em>, non <em>fatti</em>.</p>
+      <ol class="guide-steps">
+        <li>Chiedi: "The capital of France is ___" — la classe griderà Paris.</li>
+        <li>Seleziona <em>"The capital of France is…"</em> nel selettore di
+          frasi e salta a Previsione. Ipotesi migliore:
+          <strong>"the" (26%)</strong>. Paris è seconda con il 9%. Lascia
+          che l'indignazione si diffonda.</li>
+        <li>Chiedi perché. Suggerimento: completa la frase "The capital of
+          France is the largest city in…" — le frasi reali continuano
+          spesso così. Il modello scommette su come procedono le frasi,
+          non su ciò che è vero.</li>
+        <li>Ora seleziona <em>"The capital city of France is called…"</em>
+          — una parola in più di contesto e <strong>Paris sale al
+          73%</strong>.</li>
+        <li>Bilancio finale: ecco perché la formulazione conta quando parli
+          con un chatbot, e perché "lo ha detto con sicurezza" non è una
+          prova.</li>
+      </ol>
+    </section>
+
+    <section class="guide-panel">
+      <h2>Scheda 2 · Gioco della mappa delle parole <span class="guide-time">~10 min</span></h2>
+      <h3>Obiettivi di apprendimento</h3>
+      <ul class="guide-list">
+        <li>Gli embedding posizionano le parole in modo che significati
+          simili siano vicini — e gli studenti possono <em>percepirlo</em>
+          provando loro stessi a prevedere le posizioni.</li>
+      </ul>
+      <h3>Come condurlo</h3>
+      <ul class="guide-list">
+        <li>Sei round; trascina (o tocca) ogni parola misteriosa su una
+          mappa di ~47 parole in sei gruppi: animali, città, emozioni,
+          colori, cibo, famiglia. Punteggio da 0 a 100 in base alla
+          vicinanza al punto in cui il modello l'ha realmente collocata.</li>
+        <li>Funziona bene come gioco a squadre con il proiettore: le
+          squadre indicano un punto, tu lo posizioni, e si ruota.</li>
+        <li>Dopo ogni rivelazione, leggi la riga "posizionato più vicino
+          a…" — i veri vicini più prossimi del modello sono più
+          interessanti del punteggio.</li>
+      </ul>
+      <h3>Chiedi alla classe</h3>
+      <dl class="guide-qa">
+        <dt>"Nessuno ti ha mai detto dove va 'Madrid'. Come facevi a saperlo?"</dt>
+        <dd>Dalla compagnia che la parola frequenta — che è esattamente il
+          modo in cui l'ha imparato il modello. Nessuno ha etichettato i
+          gruppi.</dd>
+        <dt>"Dove apparterrebbe una parola come 'jaguar'?"</dt>
+        <dd>Le parole ambigue (animale? automobile?) si trovano tra un
+          gruppo e l'altro — un limite delle mappe con un solo punto per
+          parola, e un caso limite divertente da discutere.</dd>
+      </dl>
+    </section>
+
+    <section class="guide-panel">
+      <h2>Scheda 3 · Come si addestra <span class="guide-time">~20 min guidati</span></h2>
+      <p class="guide-note">"Da pappagallo a compagno": la stessa domanda —
+        "Why is the sky blue?" — posta dopo ciascuna delle tre fasi di
+        scuola. Le fasi 1–2 sono output reali di SmolLM2; la fase RL è
+        illustrativa (il sito stesso lo dichiara).</p>
+      <h3>Obiettivi di apprendimento</h3>
+      <ul class="guide-list">
+        <li>Il pre-addestramento produce un <strong>autocompletamento</strong>, non un assistente.</li>
+        <li>Il fine-tuning insegna la <strong>forma</strong> della risposta — che non è la stessa cosa di essere nel giusto.</li>
+        <li>L'RL migliora le risposte <strong>valutandole</strong> — e gli studenti possono essere i valutatori.</li>
+      </ul>
+      <h3>Fai notare questo</h3>
+      <ul class="guide-list">
+        <li>Il modello base non risponde alla domanda — scrive quello che
+          direbbe poi un <em>articolo</em> su quella domanda. Questo è ciò
+          che produce "semplicemente prevedere la prossima parola".</li>
+        <li>La vera risposta del modello Instruct è fluente e sicura di sé
+          ma confusa: attribuisce il merito agli "aerosol" (in realtà sono
+          le molecole di gas dell'aria stessa) e definisce il violetto
+          un'onda <em>più lunga</em> (è invece una delle più corte).
+          Leggila lentamente con la classe — individuare gli errori è la
+          lezione.</li>
+        <li>Nella fase RL, gli studenti cliccano sulla risposta che
+          preferiscono <em>prima</em> della rivelazione — sono loro il
+          modello di ricompensa. Poi il thread di matematica mostra una
+          ricompensa che non richiede alcuna opinione, e perché "mostrare
+          il proprio ragionamento" viene appreso durante l'addestramento.</li>
+      </ul>
+      <h3>Chiedi alla classe</h3>
+      <dl class="guide-qa">
+        <dt>"La risposta ottenuta con il fine-tuning sembrava ottima. Cosa c'era che non andava?"</dt>
+        <dd>Falli elencare gli errori, poi poni la domanda più pungente:
+          "Li avresti notati se non avessi già conosciuto la fisica?" Quel
+          disagio è proprio il punto — verifica sempre ciò che ti dice un
+          chatbot.</dd>
+        <dt>"Che tipo di compiti potrebbe correggere automaticamente un correttore?"</dt>
+        <dd>La matematica con un unico numero giusto: facile. La qualità di
+          un tema: difficile — per questo servono ancora le preferenze
+          umane, ed è per questo che i modelli sono più forti dove le
+          risposte sono verificabili.</dd>
+      </dl>
+    </section>
+
+    <section class="guide-panel">
+      <h2>Scheda 4 · Tutta la macchina <span class="guide-time">approfondimento</span></h2>
+      <p class="guide-note">Per gli studenti che chiedono "ma cosa c'è
+        <em>dentro</em>?" Due visualizzazioni: lo schema a blocchi (clicca
+        sullo Strato Transformer per espanderlo) e il pannello di
+        "mescolanza di inchiostro" — ogni token parte come inchiostro puro
+        del proprio colore, e lo slider mostra l'attenzione che mescola i
+        colori strato dopo strato finché la corsia dell'ultimo token non
+        contiene un po' di tutti. È da quell'inchiostro mescolato che nasce
+        la previsione.</p>
+    </section>
+
+    <section class="guide-panel">
+      <h2>Domande che gli studenti fanno sempre</h2>
+      <dl class="guide-qa">
+        <dt>"Funziona così anche ChatGPT?"</dt>
+        <dd>Stessa ricetta, ma molto più grande. Questo modello ha 135
+          milioni di parametri; i modelli più avanzati ne hanno migliaia di
+          volte tanti, oltre all'intero percorso di addestramento visto
+          nella scheda "Come si addestra". Per imparare, piccolo e
+          trasparente batte grande e opaco.</dd>
+        <dt>"Perché questo è un po' 'stupido'?"</dt>
+        <dd>Onestamente: perché è piccolissimo — ed è proprio questo il
+          punto di forza. I suoi errori (come la confusione sul cielo blu)
+          accadono alla luce del sole, dove una classe può individuarli.</dd>
+        <dt>"Perché i chatbot inventano cose?"</dt>
+        <dd>Perché vengono premiati per un testo plausibile. Quando la
+          risposta vera non è presente nei suoi schemi, la continuazione
+          che suona più probabile viene comunque prodotta con la stessa
+          sicurezza fluente. La fase 2 della scheda sull'addestramento è la
+          prova numero uno.</dd>
+        <dt>"Si ricorda di me?"</dt>
+        <dd>Il modello in sé vede solo il contesto attuale — i token che ha
+          davanti. (Le app di chat possono salvare la cronologia
+          separatamente e reinserirla, ma è l'app a farlo, non il
+          modello.)</dd>
+        <dt>"Sta pensando?"</dt>
+        <dd>La risposta più onesta: calcola — attraverso 30 strati,
+          affinando visibilmente un'ipotesi. Se questo conti come
+          "pensare" è una domanda genuinamente aperta; lascia che la classe
+          ne discuta dopo aver visto il meccanismo.</dd>
+      </dl>
+    </section>
+  </main>
+
+  <script>
+    // On file:// the browser blocks ES modules and fetch, so the interactive
+    // bits would silently fail. Classic inline scripts still run — explain.
+    if (location.protocol === "file:") {
+      var b = document.createElement("div");
+      b.className = "load-error";
+      b.innerHTML = "<strong>Questa pagina non può funzionare completamente se aperta direttamente da una cartella.</strong> " +
+        "Il browser ne blocca il caricamento di codice e dati. Esegui invece il sito: " +
+        "lancia <code>python3 -m http.server</code> dentro la cartella <code>web/</code>, " +
+        "poi apri <code>http://localhost:8000</code> — oppure usa il link ospitato online.";
+      document.body.prepend(b);
+    }
+  </script>
+  <script type="module">
+    import { initAaToggle } from "./js/aa.js";
+    import { mountGlossary } from "./js/glossary.js";
+    initAaToggle();
+    mountGlossary({ open: true });   // pre-opened so it prints with the guide
+  </script>
+</body>
+</html>

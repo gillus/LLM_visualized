@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f5efe2" />
+  <title>Come un'IA prevede la prossima parola</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,650;0,9..144,800;1,9..144,500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Spline+Sans+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/scrollama@3"></script>
+</head>
+<body>
+  <!-- sticky chrome -->
+  <header id="top-bar">
+    <div class="title">
+      <svg class="logo" viewBox="0 0 26 26" aria-hidden="true">
+        <rect x="3"  y="17" width="20" height="4" rx="2" class="lg1"/>
+        <rect x="6"  y="11" width="14" height="4" rx="2" class="lg2"/>
+        <rect x="9"  y="5"  width="8"  height="4" rx="2" class="lg3"/>
+      </svg>
+      <span>Come un'IA prevede la&nbsp;prossima&nbsp;parola</span>
+    </div>
+    <nav class="nav-tabs">
+      <a href="index.html" class="active">La storia della previsione</a>
+      <a href="architecture.html">Architettura</a>
+      <a href="embedding-game.html">Gioco della mappa delle parole</a>
+      <a href="training.html">Come si addestra</a>
+      <a href="teachers.html">Per gli insegnanti</a>
+    </nav>
+    <div class="top-right">
+      <div class="aa-toggle" role="group" aria-label="Livello di lettura">
+        <button type="button" class="aa-btn" data-aa-mode="simple" title="Parole semplici, pochi numeri">Aa<span class="aa-word"> semplice</span></button>
+        <button type="button" class="aa-btn" data-aa-mode="detail" title="Terminologia reale e numeri grezzi">Aa<span class="aa-word"> dettagli</span></button>
+      </div>
+      <label class="example-picker">
+        <span class="picker-lbl">Frase</span>
+        <select id="example-select"></select>
+      </label>
+    </div>
+  </header>
+  <div id="strip-bar">
+    <div id="token-strip"></div>
+  </div>
+
+  <main>
+    <!-- HERO -->
+    <section id="hero">
+      <p class="hero-kicker">Una guida sul campo a un cervello artificiale molto piccolo</p>
+      <h1>Indovina <span class="hl">una&nbsp;parola</span><br/>alla volta.</h1>
+      <p class="hero-lead">Ogni chatbot con cui hai mai parlato fa un solo trucco,
+        ripetuto all'infinito: <em>leggere tutto il testo scritto finora, poi
+        scommettere sulla parola successiva.</em> Abbiamo congelato un vero modello
+        piccolissimo a metà del suo ragionamento, così puoi ripercorrere quel trucco
+        in cinque passaggi — niente magia, solo matematica che puoi vedere.</p>
+      <ol class="hero-pipeline" aria-label="Le cinque fasi">
+        <li style="--c:#d97706">Token</li>
+        <li style="--c:#db2777">Embedding</li>
+        <li style="--c:#2563eb">Strati</li>
+        <li style="--c:#7c3aed">Attenzione</li>
+        <li style="--c:#16a34a">Previsione</li>
+      </ol>
+      <div class="hero-scroll" aria-hidden="true"><span>scorri</span><svg viewBox="0 0 16 16"><path d="M8 2v10M3.5 8.5 8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </section>
+
+    <!-- ① TOKENS -->
+    <section class="scrolly" data-stage="tokens">
+      <div class="viz-sticky"><div class="viz" data-viz="tokens"></div></div>
+      <div class="steps">
+        <div class="step" data-stage="tokens" data-step="intro">
+          <p class="step-kicker">Fase 1 · Token</p>
+          <h2>Prima, la frase viene fatta a pezzi</h2>
+          <p>Un'IA non legge lettere. Spezzetta il tuo testo in piccoli pezzi
+             chiamati <strong>token</strong> — parole intere, o pezzi di parole.</p>
+          <p class="aa-note aa-detail">Chi spezzetta il testo è un tokenizzatore
+             Byte-Pair Encoding (BPE) con un vocabolario appreso di 49.152
+             sotto-parole; ␣ indica un token che inizia con uno spazio.</p>
+        </div>
+        <div class="step" data-stage="tokens" data-step="split">
+          <p>Ecco la nostra frase, divisa nei suoi token. Alcuni token includono
+             lo spazio prima di loro — quel piccolo simbolo <strong>␣</strong>.</p>
+        </div>
+        <div class="step" data-stage="tokens" data-step="ids">
+          <p>Ogni token ha un <strong>numero</strong> — il suo id in un dizionario
+             di 49.152 pezzi. Da questo momento in poi l'IA lavora solo con questi
+             numeri.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ② EMBEDDING -->
+    <section class="scrolly" data-stage="embedding">
+      <div class="viz-sticky"><div class="viz" data-viz="embedding"></div></div>
+      <div class="steps">
+        <div class="step" data-stage="embedding" data-step="all">
+          <p class="step-kicker">Fase 2 · Embedding</p>
+          <h2>Ogni pezzo trova un posto sulla mappa dei&nbsp;significati</h2>
+          <p>Ogni token diventa un punto su una mappa dei significati. (La mappa
+             reale ha 576 dimensioni — l'abbiamo appiattita a 2 per poterla
+             vedere.)</p>
+          <p class="aa-note aa-detail">Ogni id di token indicizza un vettore
+             embedding a 576 dimensioni. La disposizione 2D è una proiezione UMAP
+             basata sulla similarità del coseno — i vicinati hanno un significato,
+             gli assi no.</p>
+        </div>
+        <div class="step" data-stage="embedding" data-step="neighbors">
+          <p>Le parole che l'IA considera simili stanno vicine tra loro — siamo
+             saltati alla parola più interessante della nostra frase. Questi sono
+             i suoi vicini più stretti sulla mappa. <strong>Clicca su un altro
+             token nella striscia qui sopra</strong> per esplorare il suo vicinato.</p>
+        </div>
+        <div class="step" data-stage="embedding" data-step="clusters">
+          <p>Ogni token ha il suo vicinato di parole simili — eccoli tutti, nei
+             colori corrispondenti. L'IA non vede mai definizioni; questa mappa
+             di "cosa va con cosa" è dove nasce il suo senso del significato.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ③ LAYERS -->
+    <section class="scrolly" data-stage="layers">
+      <div class="viz-sticky"><div class="viz" data-viz="layers"></div></div>
+      <div class="steps">
+        <div class="step" data-stage="layers" data-step="intro">
+          <p class="step-kicker">Fase 3 · Strati</p>
+          <h2>Il ragionamento, strato dopo strato</h2>
+          <p>L'IA fa passare i token attraverso molti <strong>strati</strong>.
+             Possiamo sbirciare la sua ipotesi migliore dopo ognuno di essi.</p>
+          <p class="aa-note aa-detail">Questo sbirciare si chiama logit lens (una
+             lente sui significati): lo stato nascosto di ogni strato viene fatto
+             passare attraverso la normalizzazione finale del modello e
+             l'unembedding. L'interruttore Semplice/Affinata sulla scheda passa
+             a una lente affinata (tuned lens) — un piccolo traduttore addestrato
+             che ripulisce gli strati intermedi.</p>
+        </div>
+        <div class="step tall" data-stage="layers" data-step="scrub">
+          <p><strong>Continua a scorrere</strong> — oppure prendi il cursore degli
+             strati sulla scheda. A destra, le ipotesi cambiano strato dopo strato
+             — da un'assurdità all'inizio a una risposta sicura alla fine. A
+             sinistra, guarda il token <em>viaggiare sulla mappa dei
+             significati</em> mentre viene raffinato fino a diventare la
+             previsione.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ④ ATTENTION -->
+    <section class="scrolly" data-stage="attention">
+      <div class="viz-sticky"><div class="viz" data-viz="attention"></div></div>
+      <div class="steps">
+        <div class="step" data-stage="attention" data-step="spot0">
+          <p class="step-kicker">Fase 4 · Attenzione</p>
+          <h2>Le parole guardano indietro ad altre parole</h2>
+          <p>Per prevedere la prossima parola, ogni token <strong>guarda
+             indietro</strong> ai token precedenti di cui ha bisogno. Le linee
+             più spesse indicano un'attenzione più forte — guarda a chi chiede
+             aiuto l'ultimo token.</p>
+          <p>Una stranezza: vedrai spesso una linea spessa verso la primissima
+             parola. Non è un interesse reale — è dove l'IA <em>parcheggia</em>
+             l'attenzione che non sta usando. Ignora quella linea e leggi le
+             altre.</p>
+          <p class="aa-note aa-detail">Ogni linea è un peso di attenzione softmax.
+             SmolLM2-135M ha 30 strati × 9 teste di query, che condividono 3 teste
+             chiave/valore (grouped-query attention); la massa parcheggiata sul
+             primo token è un attention sink, non un flusso di informazioni.</p>
+        </div>
+        <div class="step" data-stage="attention" data-step="spot1">
+          <p>L'IA ha molte <strong>teste</strong> di attenzione, ognuna con la sua
+             abitudine — questa guarda soprattutto la parola appena precedente.
+             Scegli un token nella striscia qui sopra per vedere cosa guarda
+             <em>lui</em>, oppure esplora qualsiasi strato e testa con i cursori
+             sulla scheda.</p>
+        </div>
+        <div class="step" data-stage="attention" data-step="grid">
+          <p><strong>Avanzato:</strong> la griglia completa dell'attenzione. Ogni
+             riga è un token che chiede, ogni colonna un token osservato.</p>
+        </div>
+        <div class="step" data-stage="attention" data-step="arcs">
+          <p>Torna alla vista semplice.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑤ PREDICTION -->
+    <section class="scrolly" data-stage="prediction">
+      <div class="viz-sticky"><div class="viz" data-viz="prediction"></div></div>
+      <div class="steps">
+        <div class="step" data-stage="prediction" data-step="bars">
+          <p class="step-kicker">Fase 5 · Previsione</p>
+          <h2>Fai la tua scommessa</h2>
+          <p>Infine, l'IA assegna un punteggio a ogni possibile parola successiva,
+             trasformato in probabilità. Ecco le più probabili — su 49.152 token
+             possibili, anche solo qualche punto percentuale è una vittoria
+             schiacciante. La barra tenue <strong>"tutto il resto"</strong>
+             raggruppa tutte le altre parole: migliaia di piccole probabilità
+             che si sommano.</p>
+          <p class="aa-note aa-detail">I punteggi grezzi sono logit; le barre
+             mostrano softmax(logit ÷ T) sull'intero vocabolario — conserviamo
+             i primi 50, e il resto viene ripartito nel gruppo "tutto il resto"
+             distribuendo in modo uniforme la sua vera probabilità residua
+             (esatto a T = 1). Il dado campiona questa stessa distribuzione;
+             un lancio può finire in quel gruppo.</p>
+        </div>
+        <div class="step tall" data-stage="prediction" data-step="temperature">
+          <p>La <strong>temperatura</strong> controlla il rischio. Scorri — oppure
+             trascina il cursore sulla scheda — per scaldarla: bassa = sempre la
+             parola più sicura, alta = scelte più sorprendenti. Non fidarti solo
+             delle nostre parole — premi <strong>Lancia il dado per una
+             parola</strong> un po' di volte a ogni temperatura e guarda cosa
+             esce.</p>
+        </div>
+        <div class="step" data-stage="prediction" data-step="reveal">
+          <p>E la parola vincente riempie lo spazio vuoto in alto. Quella parola
+             si unisce alla frase — poi l'intera pipeline riparte per la parola
+             successiva. <strong>Provaci:</strong> premi <strong>Aggiungi e
+             prevedi ancora</strong> e continua la storia.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- OUTRO -->
+    <section id="outro">
+      <p class="step-kicker">…e ancora, e ancora</p>
+      <h2>Una parola alla volta, per sempre</h2>
+      <p class="outro-lead">La parola vincente viene incollata alla frase, e l'intera
+         pipeline — token, mappa, strati, attenzione, scommesse — riparte per la
+         parola successiva. Un intero saggio non è altro che questo ciclo,
+         ripetuto migliaia di volte.</p>
+      <div class="outro-actions">
+        <a class="btn-primary" href="architecture.html">Guarda l'intera macchina →</a>
+        <button class="btn-ghost" onclick="document.getElementById('example-select').focus()">Prova un'altra frase ↑</button>
+      </div>
+      <p class="outro-fine">Modello: SmolLM2-135M · ogni numero in questa pagina è
+         stato calcolato una volta sola, offline — nel tuo browser non gira nulla.</p>
+    </section>
+  </main>
+
+  <!-- sticky mini-rail / jump nav -->
+  <nav id="rail" aria-label="Vai alla fase">
+    <a class="rail-link active" data-stage="tokens" style="--c:#d97706" href="#" onclick="document.querySelector('[data-stage=tokens]').scrollIntoView();return false">Token</a>
+    <a class="rail-link" data-stage="embedding" style="--c:#db2777" href="#" onclick="document.querySelector('[data-stage=embedding]').scrollIntoView();return false">Embedding</a>
+    <a class="rail-link" data-stage="layers" style="--c:#2563eb" href="#" onclick="document.querySelector('[data-stage=layers]').scrollIntoView();return false">Strati</a>
+    <a class="rail-link" data-stage="attention" style="--c:#7c3aed" href="#" onclick="document.querySelector('[data-stage=attention]').scrollIntoView();return false">Attenzione</a>
+    <a class="rail-link" data-stage="prediction" style="--c:#16a34a" href="#" onclick="document.querySelector('[data-stage=prediction]').scrollIntoView();return false">Previsione</a>
+  </nav>
+
+  <script>
+    // On file:// the browser blocks ES modules and fetch, so the page would
+    // stay silently blank. Classic inline scripts still run — explain why.
+    if (location.protocol === "file:") {
+      var b = document.createElement("div");
+      b.className = "load-error";
+      b.innerHTML = "<strong>Questa pagina non può funzionare direttamente da una cartella.</strong> " +
+        "Il browser le impedisce di caricare codice e dati. Falla girare da un server: " +
+        "esegui <code>python3 -m http.server</code> dentro la cartella <code>web/</code>, " +
+        "poi apri <code>http://localhost:8000</code> — oppure usa il link online.";
+      document.body.prepend(b);
+    }
+  </script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

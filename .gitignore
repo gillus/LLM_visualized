@@ -1,0 +1,11 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# One-off local backups
+site_en_backup_*.tar.gz
+
+# Editor / OS noise
+.DS_Store
+.claude/
