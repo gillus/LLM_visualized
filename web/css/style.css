@@ -92,6 +92,9 @@ body {
 }
 .nav-tabs a.active { background: var(--ink); color: var(--paper); }
 .nav-tabs a:not(.active):hover { border-color: var(--line-strong); background: var(--panel); }
+/* external document (opens in a new tab) — dashed pill so it doesn't read as a page tab */
+.nav-tabs a.tab-external { border: 1.5px dashed var(--line-strong); color: var(--muted); }
+.nav-tabs a.tab-external:hover { border-style: solid; }
 
 .top-right { display: flex; align-items: center; gap: 12px;
   flex: 0 0 auto; }   /* controls never squeeze — the title absorbs the shrink */

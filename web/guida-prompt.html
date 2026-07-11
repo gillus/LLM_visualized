@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="it">
+<!--
+  ═══ NOTE FOR THE DESIGN / CONVERSION PASS (Claude: read this first) ═══
+  • This is NOT a slide deck: it is a one-page REFERENCE DOCUMENT (prompt guide) for teachers.
+    → Convert to an A4 print-friendly document (or styled PDF/doc), NOT to pptx slides.
+  • Structure to preserve: the PARTS method intro → the "tre vie" legend (tempo / differenzia / crea)
+    → numbered sections of prompt templates by category.
+  • Every <div class="prompt"> is a copy-paste TEMPLATE: keep the text VERBATIM, including the
+    orange [placeholders] (<span class="v">) — teachers fill those in. Do not paraphrase prompts.
+  • Personas are assigned to Gemini («Sei un/una [ruolo]…») — never rewrite to first person.
+  • Keep all attributions/footer (Google "Generative AI for Educators", Prompt library, Clearbox AI).
+  ═══════════════════════════════════════════════════════════════════════
+-->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guida ai prompt per docenti — Gemini (versione italiana)</title>
+<style>
+  :root{--ink:#1f2430;--soft:#5b6270;--line:#e3e6ee;--accent:#483a8f;--accent2:#e95b0d;--blue:#2d6df6;--green:#2e9e57;--code:#1d1b2e;
+    --sans:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;--mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--sans);color:var(--ink);line-height:1.55;background:#f4f4f8}
+  .page{max-width:920px;margin:0 auto;background:#fff;padding:56px 64px;box-shadow:0 2px 20px rgba(0,0,0,.06)}
+  header{border-bottom:3px solid var(--accent2);padding-bottom:22px;margin-bottom:26px}
+  .ey{font-family:var(--mono);font-size:13px;color:var(--accent2);letter-spacing:.02em}
+  h1{font-size:38px;line-height:1.1;margin:8px 0 6px;letter-spacing:-.02em}
+  .lead{font-size:18px;color:var(--soft)}
+  h2{font-size:26px;margin:42px 0 6px;color:var(--accent);letter-spacing:-.01em;border-bottom:1px solid var(--line);padding-bottom:8px}
+  h2.tempo{color:#2d6df6;border-color:#bcd3fb}h2.diff{color:#2e9e57;border-color:#bfe6cd}h2.crea{color:#e95b0d;border-color:#f6d3b8}
+  h3{font-size:19px;margin:24px 0 2px}
+  h4{font-size:16px;margin:20px 0 6px;color:var(--ink)}
+  p{font-size:16px;margin:8px 0}
+  ul,ol{margin:8px 0 8px 22px}li{font-size:16px;margin:5px 0}
+  .muted{color:var(--soft)}
+  .via{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;color:#fff;vertical-align:middle;margin-left:8px}
+  .via.t{background:#2d6df6}.via.d{background:#2e9e57}.via.c{background:#e95b0d}
+  .gcat{font-family:var(--mono);font-size:12px;color:var(--soft);margin:2px 0 4px}
+  .parts{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0}
+  .part{border-radius:10px;padding:12px 10px;color:#fff}
+  .part .L{font-size:26px;font-weight:800;line-height:1}.part .n{font-weight:700;font-size:14px;margin-top:2px}.part .d{font-size:12px;opacity:.95;margin-top:4px;line-height:1.3}
+  .part.p{background:#4285f4}.part.a{background:#2e9e57}.part.r{background:#a142f4}.part.t{background:#e95b0d}.part.s{background:#e0446f}
+  .prompt{background:var(--code);color:#eae7ff;border-radius:10px;padding:14px 16px;font-family:var(--mono);font-size:13.5px;line-height:1.55;white-space:pre-wrap;margin:8px 0}
+  .prompt .v{color:#ffb06b}
+  .tip{background:#eee9f8;border-left:4px solid var(--accent);padding:12px 16px;border-radius:8px;margin:12px 0;font-size:15px}
+  .warn{background:#fdeceb;border-left:4px solid #d64545;padding:12px 16px;border-radius:8px;margin:12px 0;font-size:15px}
+  .cite{font-family:var(--mono);font-size:12.5px;color:var(--soft);background:#f5f6fb;border:1px solid var(--line);border-radius:6px;padding:3px 8px;display:inline-block;margin:6px 0}
+  a{color:var(--blue)}
+  .toc{background:#f5f6fb;border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin:22px 0}
+  .toc a{text-decoration:none}.toc li{margin:4px 0}
+  .legenda{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 0}
+  .legenda span{font-family:var(--mono);font-size:12px;color:var(--soft)}
+  footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--soft)}
+  @media print{body{background:#fff}.page{box-shadow:none;max-width:none;padding:0}}
+</style>
+</head>
+<body>
+<div class="page">
+<header>
+  <div class="ey">ai_for_educators // risorsa riutilizzabile</div>
+  <h1>Guida ai prompt per docenti</h1>
+  <p class="lead">Il metodo <b>PARTS</b> e i prompt per docenti, basati sui materiali Google e organizzati per le <b>tre vie</b>: risparmia tempo · differenzia · stimola la creatività.</p>
+</header>
+
+<p class="muted">Basata su <b>PARTS</b> e sulla <i>Prompt library</i> di Google. Scegli un prompt, personalizza le parentesi <span style="color:#e95b0d">[così]</span>, incolla in Gemini, rivedi l'output.</p>
+<div class="legenda">
+  <span><b>Le tre vie:</b></span>
+  <span><span class="via t">⏱ tempo</span> risparmia tempo</span>
+  <span><span class="via d">🎯 differenzia</span> personalizza per la classe</span>
+  <span><span class="via c">💡 crea</span> stimola la creatività</span>
+</div>
+
+<div class="toc">
+  <b>Indice</b>
+  <ul>
+    <li><a href="#parts">1 · Come scrivere un prompt — il metodo PARTS</a></li>
+    <li><a href="#consigli">2 · Cinque consigli pratici</a></li>
+    <li><a href="#tempo">3 · Prompt per RISPARMIARE TEMPO</a></li>
+    <li><a href="#diff">4 · Prompt per DIFFERENZIARE</a></li>
+    <li><a href="#crea">5 · Prompt per STIMOLARE LA CREATIVITÀ</a></li>
+    <li><a href="#avanzate">6 · Tecniche avanzate (con fonti)</a></li>
+    <li><a href="#fonti">7 · Fonti</a></li>
+  </ul>
+</div>
+
+<!-- ===================== PARTS ===================== -->
+<h2 id="parts">1 · Come scrivere un prompt — il metodo PARTS</h2>
+<p>Un buon prompt si costruisce con cinque mattoni. In inglese l'acronimo è <b>PARTS</b> (le “parti” del prompt).</p>
+<div class="parts">
+  <div class="part p"><div class="L">P</div><div class="n">Persona</div><div class="d">Chi sei tu.</div></div>
+  <div class="part a"><div class="L">A</div><div class="n">Aim · Obiettivo</div><div class="d">Cosa vuoi, con un verbo.</div></div>
+  <div class="part r"><div class="L">R</div><div class="n">Recipients · Destinatari</div><div class="d">Per chi è l'output.</div></div>
+  <div class="part t"><div class="L">T</div><div class="n">Theme · Tema</div><div class="d">Stile, tono, vincoli.</div></div>
+  <div class="part s"><div class="L">S</div><div class="n">Structure · Struttura</div><div class="d">Il formato dell'output.</div></div>
+</div>
+<ul>
+  <li><b>Persona — Dai un ruolo a Gemini.</b> Di’ all’AI chi deve essere: il ruolo orienta tono, lessico e priorità della risposta. <i>“Sei il responsabile del dipartimento di Matematica e stai analizzando le lacune sui prerequisiti.”</i> · <i>“Sei un'insegnante di spagnolo che progetta attività di immersione culturale.”</i></li>
+  <li><b>Aim / Obiettivo — Dichiara il tuo scopo.</b> Inizia con un verbo/comando e aggiungi il contesto del compito. <i>“Genera idee per [contesto].”</i> · <i>“Crea una verifica su [contesto].”</i></li>
+  <li><b>Recipients / Destinatari — Specifica il pubblico.</b> Chi userà o leggerà l'output. <i>Può essere il comitato di bilancio della scuola, studenti del secondo anno con almeno quattro anni di spagnolo, o docenti di scienze motorie della prima.</i></li>
+  <li><b>Theme / Tema — Descrivi stile, tono e parametri.</b> <i>Chiedi un tono formale, non più di 50 parole, riferimenti alla cultura pop, entusiasmo.</i></li>
+  <li><b>Structure / Struttura — Indica il formato dell'output.</b> <i>Chiedi elenchi puntati, metafore o analogie, schizzi o grafici, quiz o giochi, codice, persino emoji.</i></li>
+</ul>
+<div class="tip"><b>Template da riempire:</b><br>
+<i>“Sei un/una <span style="color:#e95b0d">[persona]</span>. <span style="color:#e95b0d">[Indica l'obiettivo e i destinatari]</span>. <span style="color:#e95b0d">[Descrivi il tema e la struttura]</span>.”</i></div>
+<p class="muted"><b>Nota:</b> la guida originale di Google usa la prima persona (“I am a [persona]” — descrivi chi sei tu). In questo corso assegniamo il ruolo a Gemini (“Sei un/una…”): funzionano entrambe le forme, ma il ruolo esplicito dà risposte più mirate.</p>
+<h4>Esempio completo</h4>
+<div class="prompt">Sei un/una <span class="v">docente di storia di scuola secondaria di primo grado</span>. Progetta un'<span class="v">attività coinvolgente</span> per <span class="v">studenti di terza media</span> sulla creazione di una linea del tempo digitale collaborativa. L'attività deve integrare <span class="v">narrazione e tecnologia</span>. Il tempo a disposizione è di <span class="v">3-4 ore di lezione (60 minuti ciascuna)</span>. <span class="v">Formatta il tutto come una scaletta.</span></div>
+<p class="muted">Non servono sempre tutti e 5 i mattoni, ma <b>Persona + Obiettivo + Destinatari</b> insieme migliorano quasi sempre il risultato.</p>
+
+<!-- ===================== CONSIGLI ===================== -->
+<h2 id="consigli">2 · Cinque consigli pratici</h2>
+<ol>
+  <li><b>Sii specifico/a.</b> Più dettagli dai (argomento, classe, vincoli), più l'output è utile.</li>
+  <li><b>Dai contesto.</b> Assegna un ruolo («Sei un/una…») e spiega a cosa ti serve: cambia tono e contenuto della risposta.</li>
+  <li><b>Conversa e itera.</b> Il primo output è una bozza. Correggi in conversazione: “più breve”, “tono più formale”, “aggiungi una versione semplificata”.</li>
+  <li><b>Scrivi in linguaggio naturale.</b> Non serve “codice”: parla come faresti con un collega o un tirocinante.</li>
+  <li><b>Verifica sempre.</b> L'AI può sbagliare con tono sicuro (allucinazioni). Ricontrolla fatti, date e citazioni. E <b>mai dati personali degli studenti.</b></li>
+</ol>
+
+<!-- ===================== TEMPO ===================== -->
+<h2 id="tempo" class="tempo">3 · Prompt per RISPARMIARE TEMPO <span class="via t">⏱ tempo</span></h2>
+<p class="muted">Il lavoro ripetitivo e di pianificazione: piani di lezione, verifiche, riassunti, comunicazioni.</p>
+
+<h3>Creare un piano di lezione da zero</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. In base alle informazioni seguenti, scrivi un piano di lezione che aiuti i miei studenti a raggiungere gli obiettivi di apprendimento desiderati:
+Materia: <span class="v">[materia]</span>
+Classe: <span class="v">[classe]</span>
+Obiettivi di apprendimento:
+• <span class="v">[obiettivo]</span>
+• <span class="v">[obiettivo]</span>
+• <span class="v">[obiettivo]</span>
+Limite di tempo: <span class="v">[durata della lezione]</span>
+Conoscenze pregresse: <span class="v">[cosa gli studenti sanno già sull'argomento]</span>
+Materiali: <span class="v">[materiali necessari]</span>
+Tempo a disposizione: <span class="v">[tempo richiesto per la lezione]</span></div>
+<div class="prompt">OPPURE — Sei un/una <span class="v">[ruolo]</span>. Scrivi un piano di lezione che aiuti i miei studenti di <span class="v">[classe e materia]</span> a <span class="v">[obiettivi]</span>. La lezione dura <span class="v">[numero]</span> minuti. Il piano deve includere una sezione per <span class="v">[struttura desiderata]</span>.</div>
+
+<h3>Migliorare un piano di lezione esistente</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. Migliora questo piano di lezione per i miei studenti di <span class="v">[classe e materia]</span> affinché li aiuti a <span class="v">[obiettivi]</span>. La lezione dura <span class="v">[numero]</span> minuti. Rendilo più coinvolgente e aggiungi una sezione per <span class="v">[struttura desiderata]</span>.
+Piano attuale: <span class="v">[incolla il piano]</span></div>
+
+<h3>Generare una presentazione (bozza di slide)</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. Crea il testo per una presentazione su <span class="v">[materia]</span> per una classe di <span class="v">[classe e materia]</span>, comprese le note del relatore. Devono esserci cinque slide di testo, formattate con un titolo e una serie di punti elenco ciascuna. La prima slide deve contenere gli obiettivi di apprendimento. L'ultima slide deve contenere una verifica formativa e un'attività per gli studenti.</div>
+
+<h3>Creare un'attività di ripasso</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. In base alle informazioni seguenti, sviluppa un'attività coinvolgente che permetta agli studenti di ripassare il contenuto indicato:
+Materia: <span class="v">[materia]</span>
+Classe: <span class="v">[classe]</span>
+Obiettivi di apprendimento: <span class="v">[obiettivo; obiettivo; obiettivo]</span>
+Conoscenze, abilità e comprensione: <span class="v">[fatti, concetti o processi chiave]</span>
+Pensiero critico: <span class="v">[analizzare, trarre conclusioni, valutare argomentazioni, risolvere problemi…]</span>
+Contenuto e materiale: <span class="v">[argomento o lezione specifica]</span>
+Materiali: <span class="v">[incolla capitoli del libro, appunti, dispense…]</span>
+Livello di lettura: <span class="v">[livello desiderato]</span>
+Tipo e formato: <span class="v">[quiz, gioco, simulazione, progetto collaborativo…]</span>
+Difficoltà e durata: <span class="v">[livello di difficoltà e durata]</span></div>
+
+<h3>Riassumere contenuti (per chi era assente)</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. Riassumi il contenuto seguente per gli studenti assenti durante la lezione. Assicurati che il riassunto sia chiaro, conciso e facile da capire:
+Materia e argomento: <span class="v">[materia e argomento specifico]</span>
+Lettura o estratto: <span class="v">[nome o incolla il contenuto]</span>
+Livello di lettura: <span class="v">[livello desiderato]</span>
+Obiettivi di apprendimento: <span class="v">[obiettivo; obiettivo; obiettivo]</span>
+Punti chiave e dettagli: <span class="v">[punti e argomentazioni principali]</span>
+Terminologia: <span class="v">[definisci i termini importanti]</span>
+Formato: <span class="v">[punti elenco, linea del tempo, tabella di confronto…]</span>
+Livello di dettaglio: <span class="v">[adatta il dettaglio all'obiettivo]</span></div>
+
+<h3>Creare una verifica</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. In base alle informazioni seguenti, crea una verifica completa e coinvolgente per i miei studenti. La verifica deve:
+• coprire tutti gli obiettivi di apprendimento indicati
+• essere allineata al tipo e formato scelti
+• valutare chiaramente le competenze e le conoscenze desiderate
+• fornire istruzioni e aspettative chiare per gli studenti
+• includere le soluzioni o una griglia di correzione
+Materia: <span class="v">[materia]</span>
+Classe: <span class="v">[classe]</span>
+Obiettivi di apprendimento: <span class="v">[obiettivo; obiettivo; obiettivo]</span>
+Tipo di verifica: <span class="v">[formativa, sommativa, individuale, di gruppo, scritta, orale, per competenze…]</span>
+Competenze da valutare: <span class="v">[competenze o conoscenze, incluse abilità di pensiero critico o di ordine superiore]</span>
+Tempo a disposizione: <span class="v">[tempo stimato; numero di domande, se pertinente]</span>
+Altri criteri: <span class="v">[eventuali griglie o criteri esistenti a cui fare riferimento]</span></div>
+
+<h3>Generare exit ticket (domande di uscita)</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. In base ai dettagli seguenti, crea <span class="v">[numero]</span> exit ticket (attività e domande) per la fine della mia lezione:
+Materia: <span class="v">[materia]</span>
+Classe: <span class="v">[classe]</span>
+Materiali: <span class="v">[incolla un riassunto degli argomenti trattati, appunti, dispense…]</span>
+Obiettivi di apprendimento: <span class="v">[obiettivo; obiettivo; obiettivo]</span>
+Queste attività e domande devono essere brevi e verificare la comprensione della lezione.</div>
+
+<h3>Messaggio alle famiglie per un evento</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. In base alle informazioni fornite, scrivi una mail coinvolgente e informativa per invitare i genitori a partecipare a <span class="v">[nome evento]</span>. Incoraggia la partecipazione evidenziando i benefici per gli studenti, favorendo il senso di comunità e indicando chiaramente i dettagli dell'evento:
+Oggetto: <span class="v">[nome evento] — invito: partecipa!</span>
+Classe: <span class="v">[classe]</span>
+Data e ora dell'evento: <span class="v">[data e ora]</span>
+Descrizione dell'evento: <span class="v">[panoramica, scopo, punti salienti]</span>
+Destinatari: <span class="v">[tutti i genitori, classi specifiche, gruppi particolari]</span>
+Obiettivo desiderato: <span class="v">[maggiore coinvolgimento, senso di comunità, supporto all'apprendimento…]</span>
+Tono: <span class="v">[entusiasta, informativo, persuasivo…]</span>
+Informazioni aggiuntive (facoltative): <span class="v">[attività previste, rinfresco, necessità di prenotare…]</span></div>
+
+<h3>Creare una newsletter</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. In base alle informazioni fornite, scrivi una newsletter <span class="v">[cadenza]</span> incentrata su <span class="v">[argomenti]</span>. Includi sezioni per <span class="v">[intestazioni delle sezioni]</span>. Incoraggia la partecipazione dei lettori evidenziando i benefici per gli studenti e il senso di comunità, e indicando chiaramente <span class="v">[dettagli o eventi in arrivo]</span>:
+Oggetto: <span class="v">[oggetto]</span> · Classe: <span class="v">[classe]</span>
+Eventi in arrivo: <span class="v">[panoramica]</span> · Destinatari: <span class="v">[chi]</span>
+Obiettivo desiderato: <span class="v">[scopo]</span> · Tono: <span class="v">[entusiasta, informativo…]</span> · Lunghezza: <span class="v">[quante pagine]</span></div>
+
+<h3>Nota promemoria per la classe</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. In base alle informazioni fornite, scrivi una nota utile per ricordare agli studenti di portare <span class="v">[materiale, es. calcolatrice grafica, un articolo di attualità, un album da disegno…]</span> per la lezione di questa settimana su <span class="v">[argomento]</span>:
+Data della lezione: <span class="v">[data]</span> · Materiali: <span class="v">[cosa portare]</span>
+Formato: <span class="v">[avviso sul registro elettronico, messaggio, email…]</span>
+Livello di dettaglio: <span class="v">[adatta il dettaglio]</span> · Tono: <span class="v">[entusiasta, persuasivo…]</span></div>
+
+<h3>Definire le aspettative della classe</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. Scrivi una comunicazione alla classe sulle aspettative per gli studenti durante <span class="v">[periodo, es. l'estate]</span>. Il messaggio deve essere di circa 75 parole e incoraggiare gli studenti a <span class="v">[aspettative]</span> in preparazione al prossimo anno scolastico. Scrivilo con un tono professionale ma amichevole e inclusivo. Il formato è una email.</div>
+
+<!-- ===================== DIFFERENZIA ===================== -->
+<h2 id="diff" class="diff">4 · Prompt per DIFFERENZIARE <span class="via d">🎯 differenzia</span></h2>
+<p class="muted">Un contenuto, tante versioni: livelli di lettura, BES/DSA, padronanza diversa.</p>
+<div class="warn"><b>Privacy:</b> incolla il <b>testo didattico</b>, mai <b>dati personali</b> degli studenti (nomi, valutazioni, diagnosi, certificazioni).</div>
+
+<h3>Adattare il livello di lettura</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. Adatta il livello di lettura del testo seguente per renderlo più accessibile a studenti di livello <span class="v">[livello target]</span>:
+Testo originale: <span class="v">[incolla il testo]</span>
+Materia: <span class="v">[materia]</span>
+Argomento: <span class="v">[argomento del testo]</span>
+Destinatari: <span class="v">[studenti che leggeranno il testo: età, classe, eventuali bisogni]</span>
+Punti chiave da preservare: <span class="v">[informazioni essenziali da mantenere]</span>
+Lessico: <span class="v">[termini complessi da semplificare o spiegare]</span>
+Struttura delle frasi: <span class="v">[modifiche a lunghezza o complessità delle frasi]</span>
+Note aggiuntive: <span class="v">[tono, formato, aspetti su cui concentrarsi]</span></div>
+
+<h3>Verificare il livello di leggibilità di una consegna</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. Rivedi questa <span class="v">[consegna]</span> e indica i punti in cui la scrittura può essere semplificata, così da assicurare che il livello di lettura sia adatto ai miei studenti di <span class="v">[classe]</span>: <span class="v">[incolla la consegna]</span></div>
+
+<h3>Differenziare per chi finisce prima</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. In base alle informazioni seguenti, suggerisci modi per aggiungere differenziazione all'attività per gli studenti che finiscono presto:
+Attività: <span class="v">[nome attività]</span>
+Classe: <span class="v">[classe]</span>
+Obiettivi di apprendimento: <span class="v">[obiettivo; obiettivo; obiettivo]</span>
+Istruzioni e aspettative: <span class="v">[come si svolge e cosa devono ottenere]</span>
+Risorse: <span class="v">[materiali disponibili]</span>
+Vincoli: <span class="v">[limiti]</span>
+Tema o contesto specifico: <span class="v">[tema o contesto]</span></div>
+
+<h3>Creare compiti per diversi livelli di padronanza</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. In base alle informazioni seguenti, suggerisci modi per differenziare i compiti di progetto per studenti con diversi livelli di padronanza ed esperienza:
+Progetto: <span class="v">[nome progetto]</span> · Classe: <span class="v">[classe]</span>
+Obiettivi di apprendimento: <span class="v">[obiettivo; obiettivo; obiettivo]</span>
+Istruzioni e aspettative: <span class="v">[come si svolge]</span> · Risorse: <span class="v">[materiali]</span> · Vincoli: <span class="v">[limiti]</span> · Tema/contesto: <span class="v">[tema]</span></div>
+
+<h3>Applicare una strategia didattica</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. In base ai dettagli seguenti, crea un'attività per studenti di <span class="v">[classe]</span> che studiano <span class="v">[argomento]</span> e che utilizzi <span class="v">[strategia didattica]</span>:
+Materiali: <span class="v">[incolla capitoli, appunti, dispense…]</span>
+Livello di lettura: <span class="v">[livello]</span>
+Obiettivi di apprendimento: <span class="v">[obiettivo; obiettivo; obiettivo]</span>
+Formato: <span class="v">[punti elenco, linea del tempo, tabella…]</span></div>
+
+<h3>Modificare un'attività esistente</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. Modifica le seguenti attività di progetto per adattarle meglio ai bisogni e agli interessi dei miei studenti:
+Titolo del progetto: <span class="v">[titolo]</span> · Materia: <span class="v">[materia]</span> · Classe: <span class="v">[classe]</span> · Argomento: <span class="v">[argomento]</span>
+Descrizione attuale del progetto: <span class="v">[breve descrizione]</span>
+Destinatari: <span class="v">[studenti e loro interessi]</span>
+Modifiche desiderate — Aree da modificare: <span class="v">[difficoltà, ambito, metodi di valutazione…]</span>
+Motivi: <span class="v">[più coinvolgente, accessibile, allineato agli interessi]</span>
+Risultati attesi: <span class="v">[apprendimento più profondo, collaborazione, bisogni individuali]</span></div>
+
+<!-- ===================== CREA ===================== -->
+<h2 id="crea" class="crea">5 · Prompt per STIMOLARE LA CREATIVITÀ <span class="via c">💡 crea</span></h2>
+<p class="muted">Contro la pagina bianca: attività da zero, esempi che agganciano, spunti narrativi.</p>
+
+<h3>Creare un'attività da zero</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. In base alle informazioni seguenti, proponi un'attività coinvolgente e interattiva che aiuti i miei studenti a raggiungere gli obiettivi di apprendimento desiderati:
+Materia: <span class="v">[materia]</span>
+Classe: <span class="v">[classe]</span>
+Obiettivi di apprendimento:
+• <span class="v">[obiettivo]</span>
+• <span class="v">[obiettivo]</span>
+• <span class="v">[obiettivo]</span>
+Istruzioni e aspettative chiare: <span class="v">[come si svolge e cosa devono ottenere gli studenti]</span>
+Risorse: <span class="v">[materiali necessari]</span>
+Vincoli: <span class="v">[limiti potenziali]</span>
+Tema o contesto specifico: <span class="v">[tema o contesto in cui si colloca l'attività]</span></div>
+
+<h3>Facilitare la reciproca conoscenza</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. Ho bisogno di tre idee inclusive per aiutare gli studenti di <span class="v">[classe e materia]</span> a conoscersi tra loro.</div>
+
+<h3>Generare esempi che agganciano</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. In base ai dettagli seguenti, genera cinque esempi usando <span class="v">personaggi sportivi famosi</span>:
+Materia: <span class="v">[materia]</span>
+Classe: <span class="v">[classe]</span>
+Obiettivi di apprendimento: <span class="v">[obiettivo; obiettivo; obiettivo]</span></div>
+<div class="prompt">OPPURE — Sei un/una <span class="v">[ruolo]</span>. Genera cinque esempi per una classe di <span class="v">[classe]</span> su <span class="v">[materia]</span> usando <span class="v">personaggi sportivi famosi</span>. Gli esempi devono aiutare gli studenti a raggiungere <span class="v">[obiettivo]</span>.</div>
+
+<h3>Sviluppare esempi appropriati e inclusivi</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. Ecco una consegna di <span class="v">[materia]</span> per i miei studenti di <span class="v">[classe e materia]</span>. Migliorala includendo esempi inclusivi e adatti alla classe, ad esempio chiedendo agli studenti di scrivere una recensione della poesia per una rivista letteraria per ragazzi: <span class="v">[incolla la consegna]</span></div>
+
+<h3>Creare uno spunto per una storia (story starter)</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. In base alle informazioni seguenti, crea uno spunto narrativo che gli studenti possano usare, allineato all'obiettivo di apprendimento:
+Materia: <span class="v">[materia]</span>
+Classe: <span class="v">[classe]</span>
+Obiettivo di apprendimento: <span class="v">[obiettivo con cui allineare lo spunto]</span>
+Tema, ambientazione o contesto: <span class="v">[epoca, luogo, genere]</span>
+Elementi di trama: <span class="v">[spunti sulla trama, lasciando spazio alla creatività]</span>
+Tono e stile: <span class="v">[serio, umoristico, di suspense…]</span></div>
+
+<h3>Creare esercizi di scrittura in classe</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. Crea un compito di scrittura in classe per i miei studenti su <span class="v">[argomento]</span>. Il compito deve includere <span class="v">[obiettivi specifici]</span> riguardo a <span class="v">[argomento]</span>. Gli studenti devono completarlo in <span class="v">[numero]</span> minuti.</div>
+
+<h3>Aggiungere immagini ai materiali</h3>
+<div class="prompt">Sei un/una <span class="v">[ruolo]</span>. In base ai dettagli seguenti, crea <span class="v">[numero]</span> immagini per una presentazione su <span class="v">[argomento]</span>:
+Materia: <span class="v">[materia]</span> · Classe: <span class="v">[classe]</span> · Stile: <span class="v">[stile di illustrazione]</span>
+Materiali: <span class="v">[incolla capitoli, appunti, dispense…]</span>
+Obiettivi di apprendimento: <span class="v">[obiettivo; obiettivo; obiettivo]</span></div>
+
+<!-- ===================== AVANZATE ===================== -->
+<h2 id="avanzate">6 · Tecniche avanzate</h2>
+<p class="muted">Non servono per iniziare: usale quando il metodo PARTS non basta più. Ordine consigliato: <b>zero-shot → few-shot → chain-of-thought → model-guided → autocritica</b>. Per ciascuna: definizione, fonte scientifica, e più esempi pronti.</p>
+
+<h3>1 · Zero-shot (chiedi senza esempi)</h3>
+<p>Dai al modello solo l'<b>istruzione</b>, senza esempi: si affida alle conoscenze acquisite in addestramento. È il modo più comune e il punto di partenza.</p>
+<div class="prompt">Classifica il testo come neutro, negativo o positivo.
+Testo: «La gita è stata nel complesso ok.»
+Sentimento:</div>
+<div class="prompt">Correggi gli errori di ortografia e punteggiatura nel testo seguente e restituiscilo pulito: <span class="v">[incolla il testo]</span></div>
+<span class="cite">Fonti: Radford et al. (2019) “Language Models are Unsupervised Multitask Learners” (GPT-2) · Brown et al. (2020) arXiv:2005.14165 (setting zero/one/few-shot)</span>
+
+<h3>2 · Few-shot (dai qualche esempio)</h3>
+<p>Inserisci nel prompt <b>alcuni esempi</b> (in genere 3-8) di input→output: il modello coglie lo schema e lo applica al nuovo caso. È l'<i>in-context learning</i>: “impara” dagli esempi al momento, senza essere riaddestrato.</p>
+<div class="prompt">Genera un feedback per un tema, seguendo lo stile di questi esempi.
+Esempio 1 — Tema sul clima → «Ben documentato, ma aggiungi qualche caso concreto.»
+Esempio 2 — Tema sulla tecnologia → «Coinvolgente, ma mancano dati a supporto.»
+Ora scrivi un feedback per questo tema sulle disuguaglianze sociali: <span class="v">[incolla il tema]</span></div>
+<div class="prompt">Crea nuove risorse di apprendimento imitando lo stile.
+Esempio 1: [storia su un cavaliere coraggioso]. Esempio 2: [storia su un detective astuto].
+Ora scrivi una breve storia su un'astronauta piena di risorse, per la classe <span class="v">[classe]</span>.</div>
+<div class="prompt">Personalizza le domande di verifica seguendo il modello.
+Esempio 1 — D: «Qual è la capitale della Francia?» R: «Parigi».
+Esempio 2 — D: «Chi ha scritto Romeo e Giulietta?» R: «William Shakespeare».
+Ora crea una domanda di <span class="v">[storia]</span> per uno studente che eccelle in <span class="v">[geografia]</span>.</div>
+<span class="cite">Fonte: Brown et al. (2020), “Language Models are Few-Shot Learners” (GPT-3) · arXiv:2005.14165</span>
+
+<h3>3 · Chain-of-thought (ragiona passo per passo)</h3>
+<p>Chiedi al modello di <b>mostrare i passaggi del ragionamento</b> prima della risposta. Migliora l'affidabilità nei compiti con logica o più passaggi. Variante <i>zero-shot</i>: basta aggiungere “ragiona passo per passo”.</p>
+<div class="prompt">Marco ha 20 uova. Compra altre 2 confezioni da 12 uova ciascuna. Quante uova ha in totale? Ragiona passo per passo, poi dai la risposta.</div>
+<div class="prompt">Individua i temi principali di questo brano di storia. Genera una domanda sul tema principale. Fornisci quattro opzioni di risposta. Indica quella corretta e spiega il ragionamento. Ragiona passo per passo.
+Brano: <span class="v">[incolla il brano]</span></div>
+<div class="prompt">Scrivi un tema sull'impatto del cambiamento climatico. Prima elenca i punti principali, poi sviluppa ciascuno, infine concludi. Mostra il tuo ragionamento.</div>
+<span class="cite">Fonti: Wei et al. (2022) arXiv:2201.11903 · Kojima et al. (2022) “Zero-Shot Reasoners” arXiv:2205.11916</span>
+
+<h3>4 · Model-guided / Flipped interaction (fatti intervistare)</h3>
+<p>Invece di descrivere tutto tu, chiedi al modello di <b>porti lui le domande</b> di cui ha bisogno. Raccoglie il contesto prima di produrre: riduce dimenticanze e allucinazioni.</p>
+<div class="prompt">Voglio progettare una UDA interdisciplinare per la mia classe. Prima di propormela, <span class="v">fammi tu tutte le domande</span> di cui hai bisogno, una alla volta.</div>
+<div class="prompt">Devo preparare un piano di recupero per uno studente in difficoltà in <span class="v">[matematica]</span>. Prima di propormelo, fammi tu le domande necessarie, una alla volta, poi proponi il piano.</div>
+<span class="cite">Fonte: White et al. (2023), “A Prompt Pattern Catalog…” — pattern Flipped Interaction · arXiv:2302.11382</span>
+
+<h3>5 · Autocritica / Self-refine (fagli rivedere il suo lavoro)</h3>
+<p>Dopo una prima risposta, chiedi al modello di <b>valutare e correggere sé stesso</b>. Ciclo <i>genera → critica → migliora</i>: nello studio originale la qualità migliora in media di ~20%.</p>
+<div class="prompt">Rileggi la tua risposta precedente. Ci sono errori di fatto o affermazioni non supportate? Elencali e correggili.</div>
+<div class="prompt">Osserva la griglia di valutazione che hai appena generato. Ci sono descrittori ambigui o sovrapposti? Individuali e riscrivili in modo più chiaro e distinto.</div>
+<span class="cite">Fonte: Madaan et al. (2023), “Self-Refine: Iterative Refinement with Self-Feedback”, NeurIPS · arXiv:2303.17651</span>
+<div class="warn"><b>Attenzione:</b> l'autocritica aiuta ma <b>non sostituisce</b> la tua verifica. Il modello può anche “correggere” in modo sbagliato.</div>
+
+<!-- ===================== FONTI ===================== -->
+<h2 id="fonti">7 · Fonti</h2>
+<ul>
+  <li>Google — <b>How to write a prompt</b> (scheda PARTS) e <b>Prompt library — Generative AI for Educators with Gemini</b>. Template © 2024 Google LLC.</li>
+  <li>Google — <b>100+ ways to use Gemini in K-12 education</b> (giugno 2026).</li>
+  <li>Radford et al. (2019), <i>Language Models are Unsupervised Multitask Learners</i> (GPT-2).</li>
+  <li>Brown et al. (2020), <i>Language Models are Few-Shot Learners</i> — <a href="https://arxiv.org/abs/2005.14165">arXiv:2005.14165</a></li>
+  <li>Wei et al. (2022), <i>Chain-of-Thought Prompting Elicits Reasoning in LLMs</i> — <a href="https://arxiv.org/abs/2201.11903">arXiv:2201.11903</a></li>
+  <li>Kojima et al. (2022), <i>Large Language Models are Zero-Shot Reasoners</i> — <a href="https://arxiv.org/abs/2205.11916">arXiv:2205.11916</a></li>
+  <li>White et al. (2023), <i>A Prompt Pattern Catalog…</i> — <a href="https://arxiv.org/abs/2302.11382">arXiv:2302.11382</a></li>
+  <li>Madaan et al. (2023), <i>Self-Refine: Iterative Refinement with Self-Feedback</i> — <a href="https://arxiv.org/abs/2303.17651">arXiv:2303.17651</a></li>
+</ul>
+
+<footer>Guida ai prompt per docenti · versione italiana adattata dai materiali Google “Generative AI for Educators” · Clearbox AI — corso <i>AI for Educators</i>. I template ufficiali Google sono © 2024 Google LLC. Traduzione e adattamento a scopo didattico; le tre vie (risparmia tempo · differenzia · crea) sono la nostra riorganizzazione delle categorie originali. Trasparenza: guida realizzata con l'assistenza estesa di Claude Code (Anthropic) — traduzione, curatela e preparazione dei materiali — e rivista dal docente.</footer>
+</div>
+</body>
+</html>
