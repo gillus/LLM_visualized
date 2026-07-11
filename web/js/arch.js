@@ -3,7 +3,7 @@
 //   B. contamination lanes (token "ink" mixing across layers, scrubbed step by step)
 // No new data: reuses logit_lens (per-layer guesses) and attention (mixing).
 import { decodeAttention, displayToken } from "./decode.js";
-import { initAaToggle, showLoadError } from "./aa.js";
+import { showLoadError } from "./aa.js";
 import { mountGlossary } from "./glossary.js";
 
 // same token palette as the story page (main.js) — lanes must match the strip
@@ -271,7 +271,6 @@ async function initHeader() {
 }
 
 (async function () {
-  initAaToggle();
   mountGlossary();
   const first = await initHeader();
   await loadExample(first);

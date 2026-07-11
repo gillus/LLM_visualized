@@ -2,7 +2,7 @@
 // wires Scrollama so scroll position drives state, and keeps the sticky token
 // strip in sync. All stages read from one shared `app` object.
 import { decodeAttention } from "./decode.js";
-import { initAaToggle, showLoadError } from "./aa.js";
+import { showLoadError } from "./aa.js";
 import { mountGlossary } from "./glossary.js";
 import { createTokensStage } from "./stages/tokens.js";
 import { createEmbeddingStage } from "./stages/embedding.js";
@@ -134,7 +134,6 @@ async function main() {
     attention: createAttentionStage(),
     prediction: createPredictionStage(),
   };
-  initAaToggle();
   mountGlossary();   // before any fetch — the word list works even offline
   const firstId = await initHeader();
   await loadExample(firstId);

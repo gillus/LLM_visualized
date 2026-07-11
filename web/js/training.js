@@ -6,7 +6,7 @@
 // for stages 1–2, hand-authored for the RL stage). Nothing runs in the browser
 // but a few class toggles and one tiny typewriter — scroll just chooses which
 // sub-panel of each sticky card is showing.
-import { initAaToggle, showLoadError } from "./aa.js";
+import { showLoadError } from "./aa.js";
 import { mountGlossary } from "./glossary.js";
 
 const RM = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -273,7 +273,6 @@ function initScroller() {
 }
 
 async function main() {
-  initAaToggle();
   mountGlossary();
   DATA = await (await fetch("training.json")).json();
   // gates the .vb-real / .vb-demo copy: only claim "real model output" when

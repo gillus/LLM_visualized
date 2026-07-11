@@ -104,9 +104,10 @@ There is **no build step** — plain ES modules + CDN libraries. Just serve `web
   default; `projection.pkl` for the PCA fallback) so coordinates are stable
   across examples and across the layer trajectory. Deleting a cache re-fits
   and shifts all coordinates — only do it deliberately.
-- **Two audiences, one build.** Copy is written for kids; an `[Aa]` simplify/detail
-  toggle (planned) should switch wording and show/hide raw numbers. Keep new copy
-  classroom-appropriate and jargon-light.
+- **Simple mode only.** Copy is written for kids. A former `[Aa]` simplify/detail
+  toggle was removed (2026-07): content marked `.aa-detail` (technical asides, raw
+  numbers, the Plain/Tuned lens toggle) stays in the markup but is permanently
+  hidden by CSS. Keep new copy classroom-appropriate and jargon-light.
 - **Accessibility:** respect `prefers-reduced-motion`; the sticky mini-rail is the
   teacher's escape hatch from linear scrolling — keep jump links working.
 
@@ -147,11 +148,11 @@ UMAP transforms of hidden states and land near the predicted word; PCA remains
 the no-umap-learn fallback), embedding-stage hero walk (`embedding.hero`: the
 neighbors step auto-selects a curated content word, the Layers intro walks back
 to the last token; a learner's own strip click pins the selection and stops
-the walking), `[Aa]` simplify/detail toggle (web/js/aa.js sets a `detail` class
-on <body>, persisted in localStorage and shared by both pages; CSS gates
-`.aa-detail`/`.aa-simple`; detail mode reveals per-stage "for the curious"
-asides, token ids, neighbor cosines, the Plain/Tuned lens toggle, and the
-plain/tuned lens label), "Word map game" standalone tab
+the walking), simple-mode-only copy (a former `[Aa]` simplify/detail toggle was
+removed 2026-07; `.aa-detail` content — per-stage "for the curious" asides,
+token ids, neighbor cosines, the Plain/Tuned lens toggle and label — is still
+in the markup/JS but permanently hidden by CSS; web/js/aa.js now only holds
+`showLoadError`), "Word map game" standalone tab
 (web/embedding-game.html + web/js/game.js: drag a held-out word onto a layer-0
 embedding map of curated anchor clusters, scored 0–100 by 2D distance to its
 true spot over ~6 rounds; data precomputed by generate/embedding_game.py into

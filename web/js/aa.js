@@ -1,35 +1,5 @@
-// [Aa] simplify-vs-detail toggle — two audiences, one build (see CLAUDE.md).
-// Sets a `detail` class on <body>; CSS does all the showing/hiding:
-//   .aa-detail  → only visible in detail mode (technical asides, raw numbers)
-//   .aa-simple  → only visible in simple mode
-// The choice persists in localStorage and is shared by both pages.
-export function initAaToggle() {
-  const KEY = "llmviz-aa";
-  const btns = document.querySelectorAll(".aa-btn");
-  if (!btns.length) return;
-
-  const store = {
-    get() { try { return localStorage.getItem(KEY); } catch { return null; } },
-    set(v) { try { localStorage.setItem(KEY, v); } catch { /* private mode */ } },
-  };
-
-  const apply = (mode) => {
-    document.body.classList.toggle("detail", mode === "detail");
-    btns.forEach((b) => {
-      const on = b.dataset.aaMode === mode;
-      b.classList.toggle("active", on);
-      b.setAttribute("aria-pressed", on);
-    });
-  };
-
-  apply(store.get() === "detail" ? "detail" : "simple");
-  btns.forEach((b) => (b.onclick = () => {
-    store.set(b.dataset.aaMode);
-    apply(b.dataset.aaMode);
-    // detail asides change step heights — re-measure the scroll triggers
-    window.__scroller?.resize();
-  }));
-}
+// The site is simple-mode only: content marked .aa-detail (technical asides,
+// raw numbers) stays in the markup but is permanently hidden by CSS.
 
 // Friendly failure when a page's JSON can't be fetched — most often a teacher
 // opening index.html straight from a folder (file://), where the browser

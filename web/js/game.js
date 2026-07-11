@@ -4,7 +4,7 @@
 // learner drags each held-out mystery word onto the map and is scored by how
 // close their guess lands to the model's true 2D position. No model, no math
 // beyond a distance — all judging is against stored coordinates.
-import { initAaToggle, showLoadError } from "./aa.js";
+import { showLoadError } from "./aa.js";
 import { mountGlossary } from "./glossary.js";
 
 const RM = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -44,7 +44,6 @@ function shuffle(arr) {
 
 // ---------- load + build the plane ----------
 async function init() {
-  initAaToggle();
   mountGlossary();
   app.data = await (await fetch("embedding_game.json")).json();
   buildPlane();

@@ -96,28 +96,10 @@ body {
 .nav-tabs a.tab-external { border: 1.5px dashed var(--line-strong); color: var(--muted); }
 .nav-tabs a.tab-external:hover { border-style: solid; }
 
-.top-right { display: flex; align-items: center; gap: 12px;
-  flex: 0 0 auto; }   /* controls never squeeze — the title absorbs the shrink */
-
-/* [Aa] simplify-vs-detail toggle */
-.aa-toggle {
-  display: flex; flex: 0 0 auto; border: 1.5px solid var(--ink);
-  border-radius: 999px; overflow: hidden;
-  box-shadow: 2px 2px 0 rgba(42, 36, 24, 0.12);
-}
-.aa-btn {
-  font-family: var(--mono); font-size: 11px; font-weight: 600;
-  padding: 6px 11px; border: 0; background: var(--panel);
-  color: var(--muted); cursor: pointer; white-space: nowrap;
-}
-.aa-btn + .aa-btn { border-left: 1.5px solid var(--ink); }
-.aa-btn.active { background: var(--ink); color: var(--paper); }
-
-/* mode gating: .aa-detail only in detail mode, .aa-simple only in simple */
-body:not(.detail) .aa-detail { display: none !important; }
-body.detail .aa-simple { display: none !important; }
-body:not(.detail) .lens-toggle { display: none; }   /* Plain/Tuned is jargon */
-body.detail .tok-id { display: block; }             /* raw ids always visible */
+/* simple-mode only: .aa-detail content (technical asides, raw numbers) stays
+   in the markup but is never shown; same for the Plain/Tuned lens toggle */
+.aa-detail { display: none !important; }
+.lens-toggle { display: none; }
 
 /* "for the curious" technical asides inside step cards */
 .aa-note {
@@ -597,8 +579,6 @@ main { counter-reset: stage; }
   #top-bar .title span { display: none; }   /* the logo carries the brand */
   .nav-tabs { gap: 3px; }
   .nav-tabs a { padding: 6px 9px; font-size: 11.5px; }
-  .aa-word { display: none; }
-  .aa-btn { padding: 5px 8px; }
   /* the select's widest option is long — don't let it push the header out */
   .picker-lbl { display: none; }
   .example-picker { min-width: 0; }
@@ -612,11 +592,6 @@ main { counter-reset: stage; }
   #top-bar .title { display: none; }        /* phone: every px goes to controls */
   .nav-tabs a { padding: 5px 8px; font-size: 10.5px; }
   .picker-lbl { display: none; }
-  .top-right { gap: 6px; }
-  .aa-btn { padding: 5px 8px; }
-  .aa-word { display: none; }                        /* compact [Aa|Aa] pills */
-  .aa-btn[data-aa-mode="simple"] { font-size: 10px; }
-  .aa-btn[data-aa-mode="detail"] { font-size: 13px; }
   .example-picker { flex: 1 1 auto; min-width: 0; }
   .example-picker select { width: 100%; min-width: 0; max-width: 150px;
     font-size: 12px; }
@@ -1255,7 +1230,7 @@ body.data-verbatim .vb-demo { display: none; }
    PRINT (mainly the teacher's guide; sane everywhere)
    ============================================================ */
 @media print {
-  #top-bar .nav-tabs, #top-bar .top-right, #rail, #strip-bar, #picker-bar,
+  #top-bar .nav-tabs, #rail, #strip-bar, #picker-bar,
   .guide-actions, .hero-scroll, .load-error { display: none !important; }
   #top-bar { position: static; box-shadow: none; border-bottom: 2px solid #000; }
   body { background: #fff; }

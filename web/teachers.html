@@ -29,12 +29,6 @@
       <a href="teachers.html" class="active">Per gli insegnanti</a>
       <a href="guida-prompt.html" class="tab-external" target="_blank" rel="noopener" title="Si apre in una nuova scheda">Guida ai prompt&nbsp;&#8599;</a>
     </nav>
-    <div class="top-right">
-      <div class="aa-toggle" role="group" aria-label="Livello di lettura">
-        <button type="button" class="aa-btn" data-aa-mode="simple" title="Parole semplici, meno numeri">Aa<span class="aa-word"> semplice</span></button>
-        <button type="button" class="aa-btn" data-aa-mode="detail" title="Terminologia reale e numeri grezzi">Aa<span class="aa-word"> dettagli</span></button>
-      </div>
-    </div>
   </header>
 
   <main class="guide-main">
@@ -343,9 +337,7 @@
     }
   </script>
   <script type="module">
-    import { initAaToggle } from "./js/aa.js";
     import { mountGlossary } from "./js/glossary.js";
-    initAaToggle();
     mountGlossary({ open: true });   // pre-opened so it prints with the guide
   </script>
 </body>
