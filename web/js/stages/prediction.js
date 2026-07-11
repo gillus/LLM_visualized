@@ -40,15 +40,18 @@ function distWithTail(top, T, vocabSize) {
   const w = logits.map((l) => Math.exp((l - m) / t));
   const mass = top.reduce((a, d) => a + (d.prob ?? 0), 0);
   const nOther = Math.max((vocabSize ?? 0) - top.length, 0);
+  const hasTail = nOther > 0 && top[0].prob > 0 && mass < 0.999;
   let wTail = 0;
-  if (nOther > 0 && top[0].prob > 0 && mass < 0.999) {
+  if (hasTail) {
     // per-word tail logit, recovered from softmax(l₀) = p₀ at T = 1
     const tailLogit = top[0].logit - Math.log(top[0].prob) +
       Math.log((1 - mass) / nOther);
     wTail = nOther * Math.exp((tailLogit - m) / t);
   }
   const sum = w.reduce((a, b) => a + b, 0) + wTail;
-  return { probs: w.map((v) => v / sum), tail: wTail > 0 ? wTail / sum : null };
+  // tail is 0 (not null) when it merely froze out at cold T — the row should
+  // stay visible at 0.0% instead of popping in and out of the layout
+  return { probs: w.map((v) => v / sum), tail: hasTail ? wTail / sum : null };
 }
 
 export function createPredictionStage() {
