@@ -62,9 +62,8 @@
         <li><strong>Non devi mai guidare con lo scroll su un
           proiettore.</strong> Ogni elemento visivo controllato dallo
           scroll ha anche controlli manuali sulla scheda: uno slider degli
-          strati in Strati, slider strato/testa in Attenzione, uno slider
-          della temperatura in Previsione. La mini-barra a destra permette
-          di saltare tra le fasi.</li>
+          strati in Strati, uno slider della temperatura in Previsione. La
+          mini-barra a destra permette di saltare tra le fasi.</li>
         <li><strong>Il selettore di frasi</strong> (in alto a destra nelle
           pagine della storia e dell'architettura) permette di passare tra
           sei frasi di esempio curate. Due di queste —
@@ -106,11 +105,13 @@
           scioltezza si impara separatamente dalla verità.</li>
         <li><strong>"Temperatura più alta = più intelligente."</strong> La
           temperatura è una manopola del rischio, non dell'intelligenza.
-          Fai lanciare i dadi agli studenti a entrambi gli estremi e
-          osserva i lanci "caldi" uscire dal grafico.</li>
+          Alza la temperatura nella fase Previsione e confronta le
+          continuazioni: a caldo non diventano più intelligenti, diventano
+          imprevedibili — a volte senza senso.</li>
         <li><strong>"Scrive l'intera risposta in una volta sola."</strong>
-          Il ciclo finale ("Aggiungi e prevedi ancora") mostra che un tema
-          è una parola prevista, ripetuta migliaia di volte.</li>
+          La fase finale mostra il modello continuare la frase una parola
+          alla volta: un tema intero è quella scommessa ripetuta migliaia
+          di volte.</li>
       </ul>
     </section>
 
@@ -118,8 +119,9 @@
       <h2>Scheda 1 · La storia della previsione <span class="guide-time">~20 min guidati</span></h2>
       <p class="guide-note">La spina dorsale del sito: una frase seguita
         attraverso la vera pipeline — Token → Embedding → Strati →
-        Attenzione → Previsione. Frase predefinita: <em>"The cat sat on
-        the…"</em></p>
+        Previsione. Frase predefinita: <em>"The cat sat on the…"</em>
+        (L'attenzione ha una scheda tutta sua: «Come funziona
+        l'attenzione?».)</p>
       <h3>Obiettivi di apprendimento</h3>
       <ul class="guide-list">
         <li>Il testo diventa <strong>token</strong> (numeri), non lettere o parole intere.</li>
@@ -137,15 +139,11 @@
         <li>Strati: le ipotesi sono casuali nei primi strati e si sistemano
           solo verso la fine. La mappa a sinistra mostra il token che
           viaggia letteralmente verso la sua risposta.</li>
-        <li>Attenzione: passa a <em>"When Maria dropped her cup, she…"</em>
-          — una testa allo strato 3 traccia la linea da "she" indietro fino
-          a "Maria". Fai notare anche la linea spessa verso la prima
-          parola: è il modello che parcheggia l'attenzione che non gli
-          serve, non interesse reale.</li>
         <li>Previsione: "bed" vince con appena il 7% — e la famosa "mat" è
           molto più giù, al 27° posto (0,6%). La barra tenue "tutto il
-          resto" rappresenta insieme le altre ~49.000 parole. Lancia i
-          dadi più volte a freddo, poi a caldo.</li>
+          resto" rappresenta insieme le altre ~49.000 parole. Poi porta la
+          temperatura a 0 e guarda la continuazione: identica ogni volta.
+          Scaldala e premi «Un'altra!»: ogni tentativo cambia.</li>
       </ul>
       <h3>Chiedi alla classe</h3>
       <dl class="guide-qa">
@@ -161,14 +159,15 @@
         <dt>"Quando il modello legge 'she', come fa a capire chi sia 'she'?"</dt>
         <dd>Attenzione: "she" guarda indietro e recupera "Maria". Non è
           stata programmata nessuna regola grammaticale — questa abitudine
-          è stata imparata.</dd>
+          è stata imparata. Per vederlo, apri la scheda «Come funziona
+          l'attenzione?» o le corsie d'inchiostro in Architettura.</dd>
         <dt>"Se 'bed' è solo al 7%, il modello ha sbagliato?"</dt>
         <dd>No — con ~49.000 opzioni possibili, il 7% è una vittoria
           schiacciante. Un buon punto per parlare di cosa significhi
           probabilità.</dd>
         <dt>"Cosa succederebbe se scegliessimo sempre la parola più sicura?"</dt>
-        <dd>Imposta la temperatura al freddo e lancia i dadi ripetutamente:
-          stessa parola, ogni volta. Deterministico, e spesso noioso — per
+        <dd>Porta la temperatura a 0 nella fase Previsione: la continuazione
+          è la stessa, ogni volta. Deterministico, e spesso noioso — per
           questo i chatbot veri usano il campionamento.</dd>
       </dl>
       <h3>Attenzione a</h3>

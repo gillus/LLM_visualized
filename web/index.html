@@ -50,12 +50,11 @@
         ripetuto all'infinito: <em>leggere tutto il testo scritto finora, poi
         scommettere sulla parola successiva.</em> Abbiamo congelato un vero modello
         piccolissimo a metà del suo ragionamento, così puoi ripercorrere quel trucco
-        in cinque passaggi — niente magia, solo matematica che puoi vedere.</p>
-      <ol class="hero-pipeline" aria-label="Le cinque fasi">
+        in quattro passaggi — niente magia, solo matematica che puoi vedere.</p>
+      <ol class="hero-pipeline" aria-label="Le quattro fasi">
         <li style="--c:#d97706">Token</li>
         <li style="--c:#db2777">Embedding</li>
         <li style="--c:#2563eb">Strati</li>
-        <li style="--c:#7c3aed">Attenzione</li>
         <li style="--c:#16a34a">Previsione</li>
       </ol>
       <div class="hero-scroll" aria-hidden="true"><span>scorri</span><svg viewBox="0 0 16 16"><path d="M8 2v10M3.5 8.5 8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
@@ -142,50 +141,13 @@
       </div>
     </section>
 
-    <!-- ④ ATTENTION -->
-    <section class="scrolly" data-stage="attention">
-      <div class="viz-sticky"><div class="viz" data-viz="attention"></div></div>
-      <div class="steps">
-        <div class="step" data-stage="attention" data-step="spot0">
-          <p class="step-kicker">Fase 4 · Attenzione</p>
-          <h2>Le parole guardano indietro ad altre parole</h2>
-          <p>Per prevedere la prossima parola, ogni token <strong>guarda
-             indietro</strong> ai token precedenti di cui ha bisogno. Le linee
-             più spesse indicano un'attenzione più forte — guarda a chi chiede
-             aiuto l'ultimo token.</p>
-          <p>Una stranezza: vedrai spesso una linea spessa verso la primissima
-             parola. Non è un interesse reale — è dove l'IA <em>parcheggia</em>
-             l'attenzione che non sta usando. Ignora quella linea e leggi le
-             altre.</p>
-          <p class="aa-note aa-detail">Ogni linea è un peso di attenzione softmax.
-             SmolLM2-135M ha 30 strati × 9 teste di query, che condividono 3 teste
-             chiave/valore (grouped-query attention); la massa parcheggiata sul
-             primo token è un attention sink, non un flusso di informazioni.</p>
-        </div>
-        <div class="step" data-stage="attention" data-step="spot1">
-          <p>L'IA ha molte <strong>teste</strong> di attenzione, ognuna con la sua
-             abitudine — questa guarda soprattutto la parola appena precedente.
-             Scegli un token nella striscia qui sopra per vedere cosa guarda
-             <em>lui</em>, oppure esplora qualsiasi strato e testa con i cursori
-             sulla scheda.</p>
-        </div>
-        <div class="step" data-stage="attention" data-step="grid">
-          <p><strong>Avanzato:</strong> la griglia completa dell'attenzione. Ogni
-             riga è un token che chiede, ogni colonna un token osservato.</p>
-        </div>
-        <div class="step" data-stage="attention" data-step="arcs">
-          <p>Torna alla vista semplice.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ⑤ PREDICTION -->
+    <!-- ④ PREDICTION -->
     <section class="scrolly" data-stage="prediction">
       <div class="viz-sticky"><div class="viz" data-viz="prediction"></div></div>
       <div class="steps">
         <div class="step" data-stage="prediction" data-step="bars">
-          <p class="step-kicker">Fase 5 · Previsione</p>
-          <h2>Fai la tua scommessa</h2>
+          <p class="step-kicker">Fase 4 · Previsione</p>
+          <h2>Una parola alla volta</h2>
           <p>Infine, l'IA assegna un punteggio a ogni possibile parola successiva,
              trasformato in probabilità. Ecco le più probabili — su 49.152 token
              possibili, anche solo qualche punto percentuale è una vittoria
@@ -196,22 +158,26 @@
              mostrano softmax(logit ÷ T) sull'intero vocabolario — conserviamo
              i primi 50, e il resto viene ripartito nel gruppo "tutto il resto"
              distribuendo in modo uniforme la sua vera probabilità residua
-             (esatto a T = 1). Il dado campiona questa stessa distribuzione;
-             un lancio può finire in quel gruppo.</p>
+             (esatto a T = 1).</p>
         </div>
         <div class="step tall" data-stage="prediction" data-step="temperature">
-          <p>La <strong>temperatura</strong> controlla il rischio. Scorri — oppure
-             trascina il cursore sulla scheda — per scaldarla: bassa = sempre la
-             parola più sicura, alta = scelte più sorprendenti. Non fidarti solo
-             delle nostre parole — premi <strong>Lancia il dado per una
-             parola</strong> un po' di volte a ogni temperatura e guarda cosa
-             esce.</p>
+          <p>La <strong>temperatura</strong> è la manopola del rischio. Scorri —
+             oppure trascina il cursore sulla scheda — per scaldarla: a 0 vince
+             sempre la parola più sicura; più sali, più le scommesse si
+             spargono anche su parole improbabili. Guarda le barre
+             appiattirsi.</p>
         </div>
-        <div class="step" data-stage="prediction" data-step="reveal">
-          <p>E la parola vincente riempie lo spazio vuoto in alto. Quella parola
-             si unisce alla frase — poi l'intera pipeline riparte per la parola
-             successiva. <strong>Provaci:</strong> premi <strong>Aggiungi e
-             prevedi ancora</strong> e continua la storia.</p>
+        <div class="step" data-stage="prediction" data-step="variants">
+          <p>La parola scelta riempie lo spazio vuoto in alto, si incolla alla
+             frase — e tutto ricomincia per la parola dopo. Qui sotto il modello
+             ha continuato la frase proprio alla temperatura che hai scelto:
+             a freddo scrive sempre la stessa cosa, a caldo ogni tentativo è
+             diverso (e a volte strano). <strong>Premi "Un'altra!"</strong> e
+             confronta.</p>
+          <p class="aa-note aa-detail">Le continuazioni sono state campionate
+             offline dal modello vero, alcune varianti per ogni temperatura,
+             con softmax(logit ÷ T) a ogni passo — qui la pagina le rigioca
+             soltanto.</p>
         </div>
       </div>
     </section>
@@ -221,7 +187,7 @@
       <p class="step-kicker">…e ancora, e ancora</p>
       <h2>Una parola alla volta, per sempre</h2>
       <p class="outro-lead">La parola vincente viene incollata alla frase, e l'intera
-         pipeline — token, mappa, strati, attenzione, scommesse — riparte per la
+         pipeline — token, mappa, strati, scommesse — riparte per la
          parola successiva. Un intero saggio non è altro che questo ciclo,
          ripetuto migliaia di volte.</p>
       <div class="outro-actions">
@@ -238,7 +204,6 @@
     <a class="rail-link active" data-stage="tokens" style="--c:#d97706" href="#" onclick="document.querySelector('[data-stage=tokens]').scrollIntoView();return false">Token</a>
     <a class="rail-link" data-stage="embedding" style="--c:#db2777" href="#" onclick="document.querySelector('[data-stage=embedding]').scrollIntoView();return false">Embedding</a>
     <a class="rail-link" data-stage="layers" style="--c:#2563eb" href="#" onclick="document.querySelector('[data-stage=layers]').scrollIntoView();return false">Strati</a>
-    <a class="rail-link" data-stage="attention" style="--c:#7c3aed" href="#" onclick="document.querySelector('[data-stage=attention]').scrollIntoView();return false">Attenzione</a>
     <a class="rail-link" data-stage="prediction" style="--c:#16a34a" href="#" onclick="document.querySelector('[data-stage=prediction]').scrollIntoView();return false">Previsione</a>
   </nav>
 

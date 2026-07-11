@@ -22,6 +22,7 @@ import json
 import os
 import pickle
 import sys
+import zlib
 
 import numpy as np
 import torch
@@ -45,7 +46,9 @@ TUNED_CACHE = os.path.join(HERE, "tuned_lens.pt")
 
 K_LENS = 8       # top-k tokens kept per layer in the logit lens
 K_PRED = 50      # top-k kept for the final prediction (enables temperature slider)
-CONT_STEPS = 3   # greedy continuation steps ("add the word → predict again" loop)
+TEMP_BINS = [0.0, 0.6, 0.9, 1.3, 1.8]  # sampled-continuation temperatures (cold→hot)
+CHAIN_VARIANTS = 3   # sampled continuations per warm bin (T=0 stores 1: greedy)
+CHAIN_STEPS = 12     # tokens per continuation (may stop early at EOS)
 N_NEIGHBORS = 8  # nearest neighbors per prompt token, in the meaning-map view
 CLOUD_SIZE = 400 # background "vocabulary cloud" dots
 SEED = 0
@@ -90,8 +93,8 @@ def lens_topk(hs, norm, lm_head, tok, N, tuned=None):
 
 
 def topk_pred(logits, tok):
-    """Top-K_PRED next-token candidates with logits (for the temperature/dice
-    UI) — used for the base prediction and each continuation step."""
+    """Top-K_PRED next-token candidates with logits (the temperature slider
+    re-softmaxes logit/T over this set client-side)."""
     probs = torch.softmax(logits, dim=-1)
     vals, idx = probs.topk(K_PRED)
     return [
@@ -101,6 +104,32 @@ def topk_pred(logits, tok):
          "prob": round(float(vals[r]), 4)}
         for r in range(K_PRED)
     ]
+
+
+@torch.no_grad()
+def sample_chain(model, tok, ids, first_logits, T, steps, seed):
+    """One sampled continuation of the prompt: T<=0 is greedy (argmax),
+    otherwise softmax(logit/T) sampled with a per-chain seeded generator so
+    re-running the generator writes byte-identical files. Stops early at EOS;
+    newline tokens are kept as a visible '↵' chip."""
+    g = torch.Generator().manual_seed(seed)
+    chain_ids, out, logits = list(ids), [], first_logits
+    for _ in range(steps):
+        if T <= 0:
+            nid = int(logits.argmax())
+        else:
+            probs = torch.softmax(logits / T, dim=-1)
+            nid = int(torch.multinomial(probs, 1, generator=g))
+        if nid == tok.eos_token_id:
+            break
+        raw = tok.convert_ids_to_tokens(nid)
+        txt, lead = clean_token(raw)
+        if "Ċ" in raw:
+            txt, lead = "↵", False
+        out.append({"text": txt, "lead_space": lead})
+        chain_ids.append(nid)
+        logits = model(input_ids=torch.tensor([chain_ids])).logits[0, -1]
+    return out
 
 
 STOPWORDS = {"the", "a", "an", "of", "to", "in", "on", "at", "is", "was",
@@ -367,25 +396,23 @@ def export_example(ex, tok, model, E, proj, proj_meta, cloud_ids, tuned=None):
     final = out.logits[0, -1]                  # (vocab,)
     pred = topk_pred(final, tok)
 
-    # --- (6) autoregressive continuation: greedily append the top word and
-    # re-run, CONT_STEPS times. Only the next-word distribution is kept per
-    # step (embedding/layers/attention are NOT re-run — see SCHEMA.md). This
-    # powers the story's "add the word → predict again" loop.
-    chain = []
-    chain_ids = list(ids)
-    last_logits = final
-    with torch.no_grad():
-        for _ in range(CONT_STEPS):
-            nid = int(last_logits.argmax())
-            txt, lead = clean_token(tok.convert_ids_to_tokens(nid))
-            chain_ids.append(nid)
-            out_c = model(input_ids=torch.tensor([chain_ids]))
-            last_logits = out_c.logits[0, -1]
-            chain.append({"token": {"id": nid, "text": txt, "lead_space": lead},
-                          "top": topk_pred(last_logits, tok)})
+    # --- (6) temp_chains: sampled continuations per temperature bin. Only the
+    # token text is kept per step (embedding/layers/attention are NOT re-run —
+    # see SCHEMA.md); the story's final stage shows these chains as the slider
+    # snaps across the bins. Seeds are fixed per (example, bin, variant) so
+    # output files are reproducible.
+    bins = []
+    for bi, T in enumerate(TEMP_BINS):
+        nvar = 1 if T <= 0 else CHAIN_VARIANTS   # greedy is deterministic
+        variants = [
+            sample_chain(model, tok, ids, final, T, CHAIN_STEPS,
+                         seed=zlib.crc32(f"{ex['id']}/{bi}/{vi}".encode()))
+            for vi in range(nvar)
+        ]
+        bins.append({"t": T, "variants": variants})
 
     doc = {
-        "schema_version": "1.1",
+        "schema_version": "1.2",
         "id": ex["id"], "title": ex["title"], "prompt": prompt,
         "model": {
             "name": MODEL,
@@ -407,7 +434,7 @@ def export_example(ex, tok, model, E, proj, proj_meta, cloud_ids, tuned=None):
                       "weights": aw, "spots": find_spots(attn, tokens)},
         "prediction": {"position": N - 1, "top": pred,
                        "temperature_note": "UI re-softmaxes logit/T over this set"},
-        "continuation": chain,
+        "temp_chains": {"steps": CHAIN_STEPS, "bins": bins},
     }
 
     if lens_tuned is not None:

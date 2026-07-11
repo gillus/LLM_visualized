@@ -1,22 +1,30 @@
-// Stage 5 — Prediction. The final next-token distribution as a bar chart, with
-// a temperature control (scroll-driven): cold = always the safest word, hot =
-// more surprising. A dice button actually SAMPLES from the current distribution
-// (over the full stored top list, not just the bars shown), so temperature is
-// demonstrated, not just claimed. The "add & predict again" button walks the
-// precomputed greedy continuation chain (data.continuation, see SCHEMA.md) —
-// the autoregressive loop, shown instead of told. The final scroll step
-// reveals the winner in the sticky token strip.
-import { escapeHtml, displayToken } from "../decode.js";
+// Stage 4 — Prediction. The final next-token distribution as a bar chart,
+// plus a temperature control that SNAPS to the precomputed bins in
+// data.temp_chains (see SCHEMA.md). For the current bin the panel plays a
+// continuation the model actually sampled offline at that temperature; the
+// "Un'altra!" button cycles the stored variants — cold = the same sentence
+// every time, hot = a different (and sometimes strange) one per try. The
+// final scroll step reveals the chain's first word in the sticky token strip.
+import { escapeHtml, displayToken, progressToIndex } from "../decode.js";
 
 const TOP_SHOWN = 8;
-const ROLLS_KEPT = 10;
-const T_MIN = 0.3, T_MAX = 1.8;
+const CHIP_MS = 180;   // one chain chip appears per tick
+// files without temp_chains (older data): the slider keeps these detents and
+// the chain panel simply stays hidden
+const FALLBACK_BINS = [{ t: 0 }, { t: 0.6 }, { t: 0.9 }, { t: 1.3 }, { t: 1.8 }];
+const REDUCED = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-// the distribution currently on the table: the base prediction, or — after
-// growing the sentence — the latest continuation step's
-function currentTop(app) {
-  const c = app.state.chain ?? 0;
-  return c === 0 ? app.data.prediction.top : app.data.continuation[c - 1].top;
+const binsOf = (app) => app.data.temp_chains?.bins ?? FALLBACK_BINS;
+
+function currentBin(app) {
+  const bins = binsOf(app);
+  return bins[Math.min(app.state.tempBin ?? 0, bins.length - 1)];
+}
+
+// the sampled chain currently on stage (null when the data has no chains)
+function currentVariant(app) {
+  const vs = currentBin(app).variants;
+  return vs?.length ? vs[(app.state.variant ?? 0) % vs.length] : null;
 }
 
 // Softmax(logit ÷ T) over the FULL vocabulary, not a renormalized top-50
@@ -44,53 +52,48 @@ function distWithTail(top, T, vocabSize) {
 }
 
 export function createPredictionStage() {
-  let elTempLabel, elTempFlavor, tempSlider, elBars, elRolls, elNote, rolls, lastRoll;
-  let growBtn, resetBtn, elChain;
+  let elTempLabel, elTempFlavor, tempSlider, elBars, elNote;
+  let elChainPanel, elChainStrip, elChainMeta, variantBtn;
+  let chainTimer = null;
+  let chainKey = null;      // which (example, bin, variant) the strip is showing
+  let revealActive = false; // true while the "variants" scroll step is current
 
-  function doRoll(app) {
-    const top = currentTop(app);
-    const T = app.state.temp ?? 1.0;
-    const { probs, tail } = distWithTail(top, T, app.data.model?.vocab_size);
-    // sample the same distribution the bars show — including the lumped tail,
-    // so hot rolls really do wander off the chart
-    const all = tail == null ? probs : [...probs, tail];
-    let r = Math.random(), i = 0;
-    while (i < all.length - 1 && (r -= all[i]) > 0) i++;
-    if (tail != null && i === all.length - 1) {
-      lastRoll = { i: -1, text: "…una parola più rara", prob: tail, tail: true };
-      rolls.unshift(lastRoll);
-      if (rolls.length > ROLLS_KEPT) rolls.pop();
-      app.set({ revealed: null });   // we don't store which word it was
+  function stopChainTimer() {
+    if (chainTimer) { clearInterval(chainTimer); chainTimer = null; }
+  }
+
+  function chipFor(app, t, i) {
+    const chip = document.createElement("span");
+    chip.className = "chain-chip" + (t.lead_space ? " lead" : "");
+    chip.style.setProperty("--c",
+      app.colorForPos(app.data.tokens.length + i));
+    chip.textContent = displayToken(t.text);
+    return chip;
+  }
+
+  // (re)play the current variant in the strip: instant under reduced motion,
+  // otherwise one chip per tick — plain DOM appends, no app.set per tick
+  function playChain(app, v) {
+    stopChainTimer();
+    elChainStrip.innerHTML = "";
+    if (REDUCED) {
+      v.forEach((t, i) => elChainStrip.appendChild(chipFor(app, t, i)));
       return;
     }
-    lastRoll = { i, text: top[i].text, prob: probs[i] };
-    rolls.unshift(lastRoll);
-    if (rolls.length > ROLLS_KEPT) rolls.pop();
-    // the rolled word fills the "?" slot in the sticky strip
-    app.set({ revealed: top[i].text });
-  }
-
-  function grow(app) {
-    const c = app.state.chain ?? 0;
-    if (c >= (app.data.continuation?.length ?? 0)) return;
-    rolls = [];
-    lastRoll = null;
-    app.set({ chain: c + 1, revealed: null });
-  }
-
-  function resetChain(app) {
-    rolls = [];
-    lastRoll = null;
-    app.set({ chain: 0, revealed: null });
+    let i = 0;
+    chainTimer = setInterval(() => {
+      if (i >= v.length) { stopChainTimer(); return; }
+      elChainStrip.appendChild(chipFor(app, v[i], i));
+      i++;
+    }, CHIP_MS);
   }
 
   return {
     id: "prediction",
     mount(root, app) {
       root.innerHTML = "";
-      rolls = [];
-      lastRoll = null;
-      growBtn = resetBtn = elChain = null;
+      stopChainTimer();
+      chainKey = null;
       const wrap = document.createElement("div");
       wrap.className = "pred-stage";
       // temperature header with a manual slider (built once — rebuilding it
@@ -101,11 +104,12 @@ export function createPredictionStage() {
       elTempLabel.className = "temp-label";
       tempSlider = document.createElement("input");
       tempSlider.type = "range";
-      tempSlider.min = T_MIN;
-      tempSlider.max = T_MAX;
-      tempSlider.step = 0.01;
+      tempSlider.min = 0;
+      tempSlider.max = binsOf(app).length - 1;
+      tempSlider.step = 1;
       tempSlider.setAttribute("aria-label", "temperatura");
-      tempSlider.oninput = () => app.set({ temp: +tempSlider.value });
+      tempSlider.oninput = () =>
+        app.set({ tempBin: +tempSlider.value, variant: 0 });
       elTempFlavor = document.createElement("span");
       elTempFlavor.className = "temp-flavor";
       elTemp.appendChild(elTempLabel);
@@ -116,74 +120,62 @@ export function createPredictionStage() {
       wrap.appendChild(elTemp);
       wrap.appendChild(elBars);
 
-      // the loop button — only when this example carries a continuation chain
-      if (app.data.continuation?.length) {
-        const growRow = document.createElement("div");
-        growRow.className = "pred-grow";
-        growBtn = document.createElement("button");
-        growBtn.type = "button";
-        growBtn.className = "grow-btn";
-        growBtn.onclick = () => grow(app);
-        elChain = document.createElement("span");
-        elChain.className = "chain-status";
-        resetBtn = document.createElement("button");
-        resetBtn.type = "button";
-        resetBtn.className = "reset-btn";
-        resetBtn.textContent = "ricomincia da capo";
-        resetBtn.onclick = () => resetChain(app);
-        growRow.appendChild(growBtn);
-        growRow.appendChild(elChain);
-        growRow.appendChild(resetBtn);
-        wrap.appendChild(growRow);
-      }
-
-      const rollBar = document.createElement("div");
-      rollBar.className = "pred-roll";
-      const dice = document.createElement("button");
-      dice.type = "button";
-      dice.className = "dice-btn";
-      // inline die icon — emoji fonts are missing on some classroom machines
-      dice.innerHTML =
-        `<svg class="die" viewBox="0 0 24 24" aria-hidden="true">` +
-        `<rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="currentColor" stroke-width="2.2"/>` +
-        `<circle cx="8" cy="8" r="1.9" fill="currentColor"/><circle cx="16" cy="8" r="1.9" fill="currentColor"/>` +
-        `<circle cx="12" cy="12" r="1.9" fill="currentColor"/>` +
-        `<circle cx="8" cy="16" r="1.9" fill="currentColor"/><circle cx="16" cy="16" r="1.9" fill="currentColor"/>` +
-        `</svg>Lancia il dado per una parola`;
-      dice.title = "Campiona una parola dalle probabilità attuali";
-      dice.onclick = () => doRoll(app);
-      elRolls = document.createElement("div");
-      elRolls.className = "roll-history";
-      rollBar.appendChild(dice);
-      rollBar.appendChild(elRolls);
+      // the sampled continuation for the current temperature bin
+      elChainPanel = document.createElement("div");
+      elChainPanel.className = "pred-chain";
+      const lbl = document.createElement("p");
+      lbl.className = "chain-lbl";
+      lbl.textContent = "Il modello continua la frase:";
+      elChainStrip = document.createElement("div");
+      elChainStrip.className = "chain-strip";
+      const actions = document.createElement("div");
+      actions.className = "chain-actions";
+      variantBtn = document.createElement("button");
+      variantBtn.type = "button";
+      variantBtn.className = "variant-btn";
+      variantBtn.textContent = "Un'altra!";
+      variantBtn.title = "Un altro tentativo alla stessa temperatura";
+      variantBtn.onclick = () =>
+        app.set({ variant: (app.state.variant ?? 0) + 1 });
+      elChainMeta = document.createElement("span");
+      elChainMeta.className = "chain-meta";
+      actions.appendChild(variantBtn);
+      actions.appendChild(elChainMeta);
+      elChainPanel.appendChild(lbl);
+      elChainPanel.appendChild(elChainStrip);
+      elChainPanel.appendChild(actions);
+      if (!app.data.temp_chains) elChainPanel.style.display = "none";
+      wrap.appendChild(elChainPanel);
 
       elNote = document.createElement("div");
       elNote.className = "pred-note";
-      wrap.appendChild(rollBar);
       wrap.appendChild(elNote);
       root.appendChild(wrap);
       this.update(app);
     },
     update(app) {
-      const top = currentTop(app);
-      const chain = app.state.chain ?? 0;
-      const T = app.state.temp ?? 1.0;
+      const bins = binsOf(app);
+      const bi = Math.min(app.state.tempBin ?? 0, bins.length - 1);
+      const T = bins[bi].t;
+      const top = app.data.prediction.top;
       const { probs, tail: tailProb } =
         distWithTail(top, T, app.data.model?.vocab_size);
       const rows = top.map((d, i) => ({ text: d.text, prob: probs[i] }))
         .slice(0, TOP_SHOWN);
       const max = Math.max(...rows.map((r) => r.prob), 1e-6);
 
-      elTempLabel.textContent = `Temperatura ${T.toFixed(2)}`;
+      elTempLabel.textContent =
+        T === 0 ? "Temperatura 0" : `Temperatura ${T.toFixed(1)}`;
       elTempFlavor.textContent =
-        T <= 0.5 ? "fredda · prevedibile" : T >= 1.3 ? "calda · creativa" : "neutra";
-      tempSlider.value = T;   // keep the slider in sync when scroll drives
+        T === 0 ? "ghiacciata · sempre uguale"
+        : T <= 0.7 ? "fredda · prevedibile"
+        : T >= 1.2 ? "calda · creativa" : "neutra";
+      tempSlider.value = bi;   // keep the slider in sync when scroll drives
 
       elBars.innerHTML = "";
       rows.forEach((r, i) => {
         const row = document.createElement("div");
-        row.className = "pred-row" + (i === 0 ? " winner" : "") +
-          (lastRoll && lastRoll.i === i ? " sampled" : "");
+        row.className = "pred-row" + (i === 0 ? " winner" : "");
         row.innerHTML =
           `<span class="pred-word">${escapeHtml(displayToken(r.text))}</span>` +
           `<span class="pred-track"><span class="pred-fill" style="width:${(r.prob / max) * 100}%"></span></span>` +
@@ -196,8 +188,7 @@ export function createPredictionStage() {
       if (tailProb != null) {
         const nOther = (app.data.model?.vocab_size ?? 0) - top.length;
         const row = document.createElement("div");
-        row.className = "pred-row other" +
-          (lastRoll && lastRoll.i === -1 ? " sampled" : "");
+        row.className = "pred-row other";
         row.innerHTML =
           `<span class="pred-word">tutto il resto</span>` +
           `<span class="pred-track"><span class="pred-fill" style="width:${Math.min(tailProb / max, 1) * 100}%"></span></span>` +
@@ -208,46 +199,42 @@ export function createPredictionStage() {
         elBars.appendChild(row);
       }
 
-      // loop button: label carries the word it will add; exhausted = the moral
-      if (growBtn) {
-        const contLen = app.data.continuation.length;
-        const done = chain >= contLen;
-        growBtn.disabled = done;
-        growBtn.textContent = done
-          ? "…e così via, per sempre"
-          : `Aggiungi “${displayToken(top[0].text)}” e prevedi di nuovo →`;
-        elChain.textContent = chain > 0
-          ? `${chain} ${chain > 1 ? "parole aggiunte" : "parola aggiunta"}`
-          : "";
-        resetBtn.style.display = chain > 0 ? "" : "none";
+      // the sampled continuation for this bin — replay only when the
+      // (example, bin, variant) on stage actually changed
+      const v = currentVariant(app);
+      if (v) {
+        const nvar = bins[bi].variants.length;
+        const vi = (app.state.variant ?? 0) % nvar;
+        elChainMeta.textContent = nvar > 1
+          ? `tentativo ${vi + 1} di ${nvar} — stessa temperatura, altro tiro`
+          : "a questa temperatura esce sempre uguale";
+        variantBtn.disabled = nvar <= 1;
+        const key = `${app.data.id}|${bi}|${vi}`;
+        if (key !== chainKey) {
+          chainKey = key;
+          playChain(app, v);
+        }
+        // while the last scroll step is active, the chain's first word fills
+        // the "?" slot in the sticky strip (guarded: set → render → equal → stop)
+        const want = revealActive ? (v[0]?.text ?? null) : app.state.revealed;
+        if (want !== app.state.revealed) app.set({ revealed: want });
       }
 
-      // recent rolls, newest first — at low T they repeat, at high T they wander
-      elRolls.innerHTML = "";
-      rolls.forEach((roll, j) => {
-        const chip = document.createElement("span");
-        chip.className = "roll-chip" + (j === 0 ? " latest" : "") +
-          (roll.tail ? " tail" : "");
-        chip.textContent = displayToken(roll.text);
-        chip.title = roll.tail
-          ? `finita fuori dalla top 50 — una delle migliaia di parole ` +
-            `improbabili (${(roll.prob * 100).toFixed(1)}% di probabilità combinata al lancio)`
-          : `${(roll.prob * 100).toFixed(1)}% di probabilità al lancio`;
-        elRolls.appendChild(chip);
-      });
-
-      // per-example classroom aside (e.g. "why does 'the' beat 'Paris'?") —
-      // it explains the BASE prediction, so hide it once the sentence has grown
-      const showNote = app.data.note && chain === 0;
-      elNote.textContent = showNote ? "💡 " + app.data.note : "";
-      elNote.style.display = showNote ? "" : "none";
+      // per-example classroom aside (e.g. "why does 'the' beat 'Paris'?")
+      elNote.textContent = app.data.note ? "💡 " + app.data.note : "";
+      elNote.style.display = app.data.note ? "" : "none";
     },
     onEnter(step, app) {
-      // un-reveal when the reader scrolls back up past the reveal step
-      app.set({ revealed: step === "reveal" ? currentTop(app)[0].text : null });
+      // un-reveal when the reader scrolls back up past the final step
+      revealActive = step === "variants";
+      app.set({
+        revealed: revealActive ? (currentVariant(app)?.[0]?.text ?? null) : null,
+      });
     },
     onProgress(step, p, app) {
-      if (step === "temperature") app.set({ temp: T_MIN + p * (T_MAX - T_MIN) });
+      if (step !== "temperature") return;
+      const bi = progressToIndex(p, binsOf(app).length);
+      if (bi !== (app.state.tempBin ?? 0)) app.set({ tempBin: bi, variant: 0 });
     },
   };
 }

@@ -67,13 +67,14 @@ export const TERMS = [
     def: "La manopola del rischio usata per scegliere una parola. " +
          "Fredda: si gioca sul sicuro, quasi sempre la scelta migliore. " +
          "Calda: le scommesse si distribuiscono su parole improbabili — " +
-         "più sorprendente, più insensato.",
+         "più sorprendente, più insensato. A temperatura 0 vince sempre " +
+         "la parola più probabile: la stessa frase, ogni volta.",
     detail: "Si realizza dividendo ogni logit per T prima del softmax." },
   { term: "Campionamento (sampling)",
-    def: "Lanciare i dadi per scegliere la parola successiva usando le " +
-         "probabilità, invece di prendere sempre la singola parola più " +
-         "probabile. È il motivo per cui la stessa domanda può ricevere " +
-         "risposte diverse." },
+    def: "Pescare la parola successiva a sorte, ma rispettando le " +
+         "probabilità: le parole probabili escono spesso, quelle rare ogni " +
+         "tanto. È il motivo per cui, a temperatura alta, la stessa frase " +
+         "può continuare in modi diversi ogni volta." },
   { term: "Logit lens",
     def: "Il trucco che ci permette di sbirciare la migliore ipotesi del " +
          "modello dopo ogni strato, non solo dopo l'ultimo.",

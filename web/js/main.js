@@ -1,13 +1,11 @@
-// Orchestrator: loads a precomputed example, mounts the five stage renderers,
+// Orchestrator: loads a precomputed example, mounts the four stage renderers,
 // wires Scrollama so scroll position drives state, and keeps the sticky token
 // strip in sync. All stages read from one shared `app` object.
-import { decodeAttention } from "./decode.js";
 import { showLoadError } from "./aa.js";
 import { mountGlossary } from "./glossary.js";
 import { createTokensStage } from "./stages/tokens.js";
 import { createEmbeddingStage } from "./stages/embedding.js";
 import { createLayersStage } from "./stages/layers.js";
-import { createAttentionStage } from "./stages/attention.js";
 import { createPredictionStage } from "./stages/prediction.js";
 
 const PALETTE = ["#2563eb", "#db2777", "#16a34a", "#d97706", "#7c3aed",
@@ -15,7 +13,6 @@ const PALETTE = ["#2563eb", "#db2777", "#16a34a", "#d97706", "#7c3aed",
 
 const app = {
   data: null,
-  attn: null,
   state: {},
   stages: {},
   colorForPos(pos) { return PALETTE[pos % PALETTE.length]; },
@@ -32,13 +29,20 @@ const app = {
 async function loadExample(id) {
   const res = await fetch(`examples/${id}.json`);
   app.data = await res.json();
-  app.attn = decodeAttention(app.data.attention, app.data.tokens.length);
   // default state: inspect the last token (where the real prediction happens)
   const lastPos = app.data.tokens.length - 1;
+  // the bars step should open on honest T≈1 probabilities — pick the bin
+  // whose temperature sits closest to 1 (data-driven: bins vary per file)
+  const bins = app.data.temp_chains?.bins;
+  const neutralBin = bins
+    ? bins.reduce((bi, b, i) =>
+        Math.abs(b.t - 1) < Math.abs(bins[bi].t - 1) ? i : bi, 0)
+    : 0;
   app.state = {
-    pos: lastPos, layer: 0, attnLayer: 0, head: 0, temp: 1.0,
-    tokenReveal: 0, embStep: 0, showGrid: false, revealed: null,
-    chain: 0,        // continuation words added via "add & predict again"
+    pos: lastPos, layer: 0,
+    tokenReveal: 0, embStep: 0, revealed: null,
+    tempBin: neutralBin, // index into temp_chains.bins (slider detents)
+    variant: 0,          // which sampled chain of the current bin is shown
     posPinned: false, // true once the learner picks a token — story stops auto-walking it
     // tuned reads out far more cleanly mid-stack — default to it when present
     lensMode: app.data.logit_lens_tuned ? "tuned" : "plain",
@@ -61,15 +65,6 @@ function renderTokenStrip(app) {
     chip.textContent = t.text;
     chip.title = `token #${t.id} (posizione ${t.pos}) — clicca per ispezionare`;
     chip.onclick = () => app.set({ pos: t.pos, posPinned: true });
-    strip.appendChild(chip);
-  });
-  // words the model has added via "add & predict again" — display-only
-  // (the other stages only have data for the original prompt tokens)
-  (app.data.continuation || []).slice(0, app.state.chain ?? 0).forEach((c) => {
-    const chip = document.createElement("span");
-    chip.className = "strip-chip grown";
-    chip.textContent = c.token.text;
-    chip.title = "aggiunta dal modello (la sua parola più sicura)";
     strip.appendChild(chip);
   });
   const arrow = document.createElement("span");
@@ -131,7 +126,6 @@ async function main() {
     tokens: createTokensStage(),
     embedding: createEmbeddingStage(),
     layers: createLayersStage(),
-    attention: createAttentionStage(),
     prediction: createPredictionStage(),
   };
   mountGlossary();   // before any fetch — the word list works even offline

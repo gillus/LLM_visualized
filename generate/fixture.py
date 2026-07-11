@@ -100,36 +100,81 @@ for layer in range(L):
     weights.append(heads)
 
 def dist(pairs, base_id):
-    """(word, logit) list -> prediction-format dicts with softmaxed probs."""
+    """(word, logit) list -> prediction-format dicts with softmaxed probs.
+    Probs are scaled to sum < 1 (like a real top-50 slice of a 49k vocab)
+    so the UI's "tutto il resto" tail-bucket path is exercised too."""
     rows = [{"id": base_id + i, "text": w, "logit": lg, "prob": 0.0}
             for i, (w, lg) in enumerate(pairs)]
     mx = max(r["logit"] for r in rows)
     exs = [math.exp(r["logit"] - mx) for r in rows]
     ssum = sum(exs)
     for r, e in zip(rows, exs):
-        r["prob"] = round(e / ssum, 4)
+        r["prob"] = round(e / ssum * 0.93, 4)
     return rows
 
 
 pred = dist(PRED, 2000)
 
-# synthetic greedy continuation: "mat" -> "." -> "The" (token = previous top-1)
-CONT = [
-    ("mat", True, [(".", 5.0), ("and", 4.2), (",", 3.8), ("in", 3.0),
-                   ("again", 2.4), ("all", 2.0), ("to", 1.7), ("happily", 1.4)]),
-    (".", False, [("The", 4.8), ("It", 4.1), ("Then", 3.5), ("A", 3.0),
-                  ("She", 2.3), ("And", 2.0), ("He", 1.8), ("One", 1.5)]),
-    ("The", True, [("cat", 5.1), ("dog", 4.0), ("sun", 3.2), ("next", 2.6),
-                   ("mat", 2.2), ("end", 1.9), ("door", 1.6), ("day", 1.4)]),
-]
-continuation = [
-    {"token": {"id": 2500 + i, "text": w, "lead_space": lead},
-     "top": dist(pairs, 2600 + i * 100)}
-    for i, (w, lead, pairs) in enumerate(CONT)
-]
+
+def chain(words):
+    """(text, lead_space) tuples -> temp_chains token dicts."""
+    return [{"text": w, "lead_space": ls} for w, ls in words]
+
+
+# synthetic sampled continuations per temperature bin: identical at T=0,
+# barely diverging at 0.6, visibly strange by 1.8 (mirrors what generate.py
+# samples from the real model; one "↵" chip exercises the newline path)
+GREEDY = chain([("mat", True), (".", False), ("The", True), ("cat", True),
+                ("sat", True), ("on", True), ("the", True), ("mat", True),
+                (".", False), ("The", True), ("cat", True), ("sat", True)])
+temp_chains = {"steps": 12, "bins": [
+    {"t": 0.0, "variants": [GREEDY]},
+    {"t": 0.6, "variants": [
+        GREEDY,
+        chain([("mat", True), (".", False), ("The", True), ("cat", True),
+               ("sat", True), ("on", True), ("the", True), ("rug", True),
+               (".", False), ("The", True), ("cat", True), ("sat", True)]),
+        chain([("floor", True), (".", False), ("The", True), ("cat", True),
+               ("sat", True), ("on", True), ("the", True), ("mat", True),
+               (".", False), ("The", True), ("dog", True), ("sat", True)]),
+    ]},
+    {"t": 0.9, "variants": [
+        chain([("rug", True), ("and", True), ("looked", True), ("at", True),
+               ("the", True), ("door", True), (".", False), ("The", True),
+               ("dog", True), ("ran", True), ("in", True), (".", False)]),
+        chain([("floor", True), (",", False), ("watching", True), ("the", True),
+               ("dog", True), ("sleep", True), ("on", True), ("the", True),
+               ("mat", True), ("by", True), ("the", True), ("door", True)]),
+        chain([("mat", True), (".", False), ("Then", True), ("the", True),
+               ("dog", True), ("came", True), ("in", True), ("and", True),
+               ("sat", True), ("down", True), ("too", True), (".", False)]),
+    ]},
+    {"t": 1.3, "variants": [
+        chain([("roof", True), (",", False), ("dreaming", True), ("of", True),
+               ("fish", True), ("and", True), ("warm", True), ("summer", True),
+               ("rain", True), ("all", True), ("night", True), (".", False)]),
+        chain([("sofa", True), ("while", True), ("the", True), ("moon", True),
+               ("slept", True), ("under", True), ("the", True), ("table", True),
+               (".", False), ("↵", False), ("A", False), ("dog", True)]),
+        chain([("chair", True), (".", False), ("Suddenly", True), ("a", True),
+               ("banana", True), ("!", False), ("The", True), ("cat", True),
+               ("sang", True), ("very", True), ("loudly", True), (".", False)]),
+    ]},
+    {"t": 1.8, "variants": [
+        chain([("spoon", True), ("!", False), ("Purple", True), ("thunder", True),
+               ("sat", True), ("inside", True), ("seven", True), ("happy", True),
+               ("the", True), ("of", True), ("mat", True), ("zz", False)]),
+        chain([("↵", False), ("zig", False), ("cloud", True), ("?", False),
+               ("cat", True), ("mat", True), ("mat", True), ("singing", True),
+               ("under", True), ("blue", True), ("backwards", True), ("nine", True)]),
+        chain([("umbrella", True), ("yes", True), ("!", False), ("!", False),
+               ("moon", True), ("cheese", True), ("the", True), ("runs", True),
+               ("sideways", True), ("cat", True), ("quietly", True), ("p", False)]),
+    ]},
+]}
 
 doc = {
-    "schema_version": "1.1", "id": "cat-sat", "title": "The cat sat on the…",
+    "schema_version": "1.2", "id": "cat-sat", "title": "The cat sat on the…",
     "prompt": "The cat sat on the",
     "model": {"name": "SYNTHETIC-FIXTURE", "d_model": 576, "n_layers": L,
               "n_heads": H, "n_kv_heads": 1, "vocab_size": 49152, "tied_embeddings": True},
@@ -149,7 +194,7 @@ doc = {
                   ]},
     "prediction": {"position": N - 1, "top": pred,
                    "temperature_note": "UI re-softmaxes logit/T over this set"},
-    "continuation": continuation,
+    "temp_chains": temp_chains,
 }
 
 os.makedirs(OUT_DIR, exist_ok=True)

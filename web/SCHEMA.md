@@ -1,4 +1,4 @@
-# Example JSON schema (v1.1)
+# Example JSON schema (v1.2)
 
 One file per example at `web/examples/<id>.json`. This is the contract between
 the offline generator (`generate/generate.py`) and the static renderer (`web/js`).
@@ -71,16 +71,21 @@ counts.
     "top": [ {"id": 2113, "text": "mat", "logit": 14.2, "prob": 0.41} ]  // ~top 50
   },
 
-  // OPTIONAL — autoregressive continuation chain (the "add the word → predict
-  // again" loop). Step i: `token` is the word that was appended (the GREEDY
-  // top-1 of the previous distribution — prediction.top[0] for i=0), and `top`
-  // is the next-word distribution after appending it (same format as
-  // prediction.top, logits included so temperature/dice still work).
-  // The UI hides the loop button when this field is absent (older files).
-  "continuation": [
-    {"token": {"id": 2113, "text": "mat", "lead_space": true},
-     "top": [ {"id": 18, "text": ".", "logit": 13.1, "prob": 0.33} ]}
-  ],
+  // OPTIONAL — precomputed sampled continuations, one set per temperature bin
+  // (replaces the v1.1 `continuation` greedy chain). bins are ordered cold→hot
+  // and the UI reads bins.length for the slider detents — never assume 5.
+  // T=0 stores ONE variant (greedy is deterministic; the UI says "always the
+  // same"); warm bins store a few independently sampled variants the learner
+  // can cycle through. Token dicts use the same display convention as `tokens`
+  // (text + lead_space); chains stop early at EOS and newline tokens are
+  // stored as a visible "↵". The UI hides the chain panel when absent.
+  "temp_chains": {
+    "steps": 12,                        // requested length (chains may be shorter)
+    "bins": [
+      {"t": 0.0, "variants": [ [ {"text": "mat", "lead_space": true} ] ]},
+      {"t": 0.9, "variants": [ [/* 12 tokens */], [/*…*/], [/*…*/] ]}
+    ]
+  },
 
   // OPTIONAL — classroom aside rendered in the Prediction stage; use when the
   // top guess is a teachable surprise (set per example in generate/examples.py)
@@ -104,11 +109,13 @@ counts.
   invisible at classroom scale).
 - **`attention.encoding`**: `ragged_q8` (default) or `dense_f32`. `decode.js`
   expands ragged rows to a dense `[q][k]` float matrix, zero-padding `k > q`.
-- **`continuation`** stores only the next-word distribution per step — the other
-  stages (embedding/layers/attention) are NOT re-run for appended tokens, so the
-  grown chips in the strip are display-only. The chain is greedy by design: the
-  button copy says "the safest word", and the dice button stays a separate,
-  client-side demonstration of sampling.
+- **`temp_chains`** is display-only: the other stages (embedding/layers/
+  attention) are NOT re-run for the continuation tokens. Chains are sampled
+  offline with `torch.multinomial(softmax(logit / T))` using a fixed seed per
+  (example, bin, variant) — `zlib.crc32(f"{id}/{bin}/{variant}")` — so
+  regenerating writes byte-identical files. The Prediction stage's temperature
+  slider snaps to these bins; the probability bars still re-softmax the stored
+  `prediction.top` logits client-side at the bin's T.
 - **`trajectory`** uses the same projection as `embedding`, so a token's hidden
   state can be drawn drifting across the meaning map as layers progress. Under
   UMAP-cosine this is a `transform` of out-of-distribution points — defensible

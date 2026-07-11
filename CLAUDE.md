@@ -3,7 +3,8 @@
 An interactive **scrollytelling** visualization of how a language model predicts
 the next word, built around a tiny model (**SmolLM2-135M**). Audience: middle- and
 high-school **teachers and students** learning AI. The story walks the real
-inference pipeline: **Tokens → Embedding → Layers → Attention → Prediction**.
+inference pipeline: **Tokens → Embedding → Layers → Prediction** (attention has
+its own standalone tab, `attention.html`, plus the Architecture page's lanes).
 
 ## Architecture: precompute offline, render static
 
@@ -39,7 +40,8 @@ web/
     main.js       # orchestrator: load example, mount stages, wire Scrollama, state
     decode.js     # pure helpers: decode ragged_q8 attention, softmax(T), interpolation
     stages/       # one renderer per pipeline stage (tokens, embedding, layers,
-                  #   attention, prediction)
+                  #   prediction; attention.js is kept on disk but no longer
+                  #   imported — the story dropped its attention section 2026-07)
     anim/         # attention.html's timeline engine + scene, PRE-TRANSPILED plain JS
                   #   (authored as JSX in a claude.ai artifact; edit the .js directly
                   #   or re-transpile offline — no Babel in the browser)
@@ -84,9 +86,9 @@ There is **no build step** — plain ES modules + CDN libraries. Just serve `web
    and rewrites `manifest.json`. Keep prompts **≤ ~12 tokens** (attention data is
    O(layers·heads·N²); short prompts also make clearer "meaning maps").
 4. No front-end change needed — the renderer is fully data-driven, including the
-   attention scroll steps, which jump to per-example curated heads
-   (`attention.spots`: the strongest long-range lookback from the final token,
-   e.g. “she” → “Maria”, plus a previous-token head).
+   Prediction stage's temperature detents and sampled continuations
+   (`temp_chains.bins`) and the still-emitted `attention.spots` (unused by the
+   story since the attention section was dropped, kept for the data contract).
 
 ## Conventions (important)
 
@@ -122,25 +124,31 @@ There is **no build step** — plain ES modules + CDN libraries. Just serve `web
 
 ## Status
 
-Built: scrollytelling shell, all 5 stages, trajectory overlay on the Layers
-meaning map, tuned-lens training + Plain/Tuned toggle (tuned is the default),
-curated example set (tokenization demo, pronoun-attention demo, clean-fact vs
-surprising-fact pair with `note` asides), data-driven attention spots,
+Built: scrollytelling shell, 4 story stages (Tokens → Embedding → Layers →
+Prediction; the former attention section was cut from the story 2026-07 —
+attention lives on its own tab + the Architecture lanes, and
+web/js/stages/attention.js stays on disk unimported), trajectory overlay on the
+Layers meaning map, tuned-lens training + Plain/Tuned toggle (tuned is the
+default), curated example set (tokenization demo, pronoun-attention demo,
+clean-fact vs surprising-fact pair with `note` asides), data-driven attention
+spots (still emitted, story-unused),
 `--preview` curation mode, "field guide" visual design (warm graph-paper
 theme; Fraunces/Atkinson Hyperlegible/Spline Sans Mono via Google Fonts CDN;
 hero + outro sections; per-stage accent colors keyed to the JS token PALETTE;
-probability framing line in the Prediction step copy), dice-roll sampling
-button in the Prediction stage (client-side sampling at the current temperature
-over the full-vocabulary distribution — stored top-50 logits plus an
+probability framing line in the Prediction step copy), temperature-binned
+sampled continuations in the Prediction stage ("Una parola alla volta", schema
+v1.2 `temp_chains`: 5 bins T=0/0.6/0.9/1.3/1.8, 3 seeded sampled variants per
+warm bin — 1 for greedy T=0 — of ~12 tokens each, truncated at EOS, newlines
+stored as "↵"; the slider snaps to the bins, chips play in one-per-tick with a
+reduced-motion instant path, "Un'altra!" cycles variants at the same T; the
+bars still re-softmax the stored top-50 logits client-side with an
 "everything else" tail bucket that spreads the true leftover mass evenly, so
-bars match the model's real probabilities at T=1 and hot rolls can land on
-"…a rarer word"; with a roll history), architecture-page
+they match the model's real probabilities at T=1; the v1.1 greedy
+`continuation` field, its "Add & predict again" button, and the dice-roll
+sampling button were removed with it), architecture-page
 "contamination lanes" (attention-rollout ink mixing with a layer scrubber;
-sink attention folded into self — see the comment in arch.js), autoregressive
-continuation chain (schema v1.1 `continuation`: 3 greedy steps precomputed per
-example; "Add & predict again" button grows the strip with display-only chips,
-ends on "…and so on, forever"), manual controls alongside scroll (layer slider
-in Layers, temperature slider in Prediction, layer/head pickers in Attention —
+sink attention folded into self — see the comment in arch.js), manual controls
+alongside scroll (layer slider in Layers, temperature slider in Prediction —
 the non-scroll path for projectors and prefers-reduced-motion; scroll re-takes
 control on the next scroll event), UMAP meaning map (cosine, fit on the curated
 word pool, cached in umap_proj.pkl; tight visible clusters; trajectories are
