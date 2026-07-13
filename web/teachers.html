@@ -54,18 +54,18 @@
           riproducono dati precalcolati — nessun account, nessuna chat,
           niente in cui uno studente possa scrivere. Sicuro da
           distribuire.</li>
-        <li><strong>L'interruttore [Aa]</strong> (in alto a destra, su ogni
-          pagina) passa tra un linguaggio semplice e la modalità dettaglio,
-          che aggiunge terminologia reale, numeri grezzi e approfondimenti
-          "per i curiosi". Scegli la modalità per ogni classe; viene
-          ricordata per dispositivo.</li>
+        <li><strong>Il linguaggio è calibrato per la classe.</strong> Tutte
+          le pagine parlano semplice, senza gergo; i dettagli tecnici che
+          servono a te (terminologia reale, numeri, limiti delle
+          visualizzazioni) li trovi in questa guida.</li>
         <li><strong>Non devi mai guidare con lo scroll su un
           proiettore.</strong> Ogni elemento visivo controllato dallo
           scroll ha anche controlli manuali sulla scheda: uno slider degli
           strati in Strati, uno slider della temperatura in Previsione. La
           mini-barra a destra permette di saltare tra le fasi.</li>
-        <li><strong>Il selettore di frasi</strong> (in alto a destra nelle
-          pagine della storia e dell'architettura) permette di passare tra
+        <li><strong>Il selettore di frasi</strong> (subito sotto
+          l'intestazione, nelle pagine della storia e dell'architettura)
+          permette di passare tra
           sei frasi di esempio curate. Due di queste —
           <em>"The capital of France is…"</em> e <em>"The capital city of
           France is called…"</em> — sono una coppia intenzionale; vedi
@@ -73,8 +73,11 @@
         <li><strong>Ogni scheda è autonoma.</strong> Una suddivisione che
           funziona: lezione 1 = La storia della previsione + l'esperimento
           di Parigi; lezione 2 = Gioco della mappa delle parole (10 min) +
-          Come si addestra; Tutta la macchina come approfondimento per gli
-          studenti che vogliono andare più a fondo.</li>
+          Come funziona l'attenzione? (il gioco mostra un punto fisso per
+          parola, l'attenzione mostra il punto che si <em>sposta</em> col
+          contesto — vanno in coppia); lezione 3 = Come si addestra; Tutta
+          la macchina come approfondimento per gli studenti che vogliono
+          andare più a fondo.</li>
         <li><strong>Distribuzione:</strong> usa il link ospitato online. Se
           apri i file direttamente da una cartella, il browser li blocca
           (la pagina te lo segnalerà); eseguire il sito in locale richiede
@@ -94,7 +97,11 @@
           in 135 milioni di numeri che assegnano un punteggio ai candidati
           per la prossima parola. L'esperimento di Parigi lo rende
           evidente: un fatto che un motore di ricerca azzeccherebbe subito
-          arriva secondo, dietro alla parola "the".</li>
+          arriva secondo, dietro alla parola "the". (Attenzione alla
+          distinzione: le app di chat moderne possono cercare sul web e
+          passare i risultati al modello come contesto — ma è l'app a
+          farlo. Il modello in sé, quello che vedi qui, non consulta
+          nulla: solo i numeri appresi in addestramento.)</li>
         <li><strong>"Capisce le parole come facciamo noi."</strong> Sa
           quali parole compaiono in compagnia delle stesse altre parole —
           geometria, non definizioni. La mappa dei significati e il gioco
@@ -143,7 +150,7 @@
           molto più giù, al 27° posto (0,6%). La barra tenue "tutto il
           resto" rappresenta insieme le altre ~49.000 parole. Poi porta la
           temperatura a 0 e guarda la continuazione: identica ogni volta.
-          Scaldala e premi «Un'altra!»: ogni tentativo cambia.</li>
+          Scaldala e premi «Un'altra!»: i tentativi tendono a divergere.</li>
       </ul>
       <h3>Chiedi alla classe</h3>
       <dl class="guide-qa">
@@ -173,8 +180,11 @@
       <h3>Attenzione a</h3>
       <p class="guide-note">La mappa dei significati è un'immagine
         appiattita (2D) di uno spazio a 576 dimensioni — la vicinanza sulla
-        mappa è affidabile, le posizioni esatte no. In modalità dettaglio,
-        il sito lo dice esplicitamente.</p>
+        mappa è affidabile, le posizioni esatte no. E il token che "viaggia"
+        sulla mappa nella fase Strati è una metafora visiva: proiettiamo lo
+        stato interno sullo spazio delle parole per renderlo leggibile, ma
+        quello stato contiene molta più informazione di "una parola in
+        movimento".</p>
     </section>
 
     <section class="guide-panel guide-activity">
@@ -196,7 +206,12 @@
           73%</strong>.</li>
         <li>Bilancio finale: ecco perché la formulazione conta quando parli
           con un chatbot, e perché "lo ha detto con sicurezza" non è una
-          prova.</li>
+          prova. Precisa però che il fallimento dipende dalla taglia: un
+          modello grande (come quelli dietro ai chatbot che usano gli
+          studenti) azzeccherebbe "Paris" quasi sempre — più parametri
+          significano più fatti memorizzati in modo robusto. La lezione che
+          resta valida a ogni taglia è l'altra: la formulazione conta, e la
+          sicurezza del tono non è una prova di verità.</li>
       </ol>
     </section>
 
@@ -229,7 +244,10 @@
         <dt>"Dove apparterrebbe una parola come 'jaguar'?"</dt>
         <dd>Le parole ambigue (animale? automobile?) si trovano tra un
           gruppo e l'altro — un limite delle mappe con un solo punto per
-          parola, e un caso limite divertente da discutere.</dd>
+          parola, e un caso limite divertente da discutere. È il gancio
+          perfetto verso la scheda «Come funziona l'attenzione?»: lì si
+          vede il punto di "calcio" <em>spostarsi</em> verso il suo senso
+          sportivo grazie al contesto.</dd>
       </dl>
     </section>
 
@@ -257,8 +275,11 @@
           Leggila lentamente con la classe — individuare gli errori è la
           lezione.</li>
         <li>Nella fase RL, gli studenti cliccano sulla risposta che
-          preferiscono <em>prima</em> della rivelazione — sono loro il
-          modello di ricompensa. Poi il thread di matematica mostra una
+          preferiscono <em>prima</em> della rivelazione — fanno la parte
+          degli addestratori umani. (Nella pratica gli umani non votano
+          ogni tentativo: i loro confronti addestrano un "modello di
+          ricompensa" che poi dà i voti al posto loro, su milioni di
+          risposte.) Poi il thread di matematica mostra una
           ricompensa che non richiede alcuna opinione, e perché "mostrare
           il proprio ragionamento" viene appreso durante l'addestramento.</li>
       </ul>

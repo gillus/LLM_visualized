@@ -47,7 +47,11 @@ EXAMPLES = [
         "note": "Sorpresa: “Paris” è solo la seconda ipotesi! Tantissime frasi "
                 "vere continuano come “The capital of France is the largest "
                 "city in the country…”, e così a vincere è “the”. L’IA prevede "
-                "quale parola è probabile che venga dopo — non va a cercare i fatti.",
+                "quale parola è probabile che venga dopo — non va a cercare i fatti. "
+                "(Un modello grande, come quelli dietro ai chatbot che usi, "
+                "azzeccherebbe “Paris” quasi sempre: più parametri, più fatti "
+                "memorizzati bene. La lezione che vale a ogni taglia è un’altra: "
+                "la formulazione conta, e il tono sicuro non è una prova di verità.)",
     },
     {
         "id": "sky-color",

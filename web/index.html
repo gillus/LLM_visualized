@@ -128,7 +128,10 @@
              passare attraverso la normalizzazione finale del modello e
              l'unembedding. L'interruttore Semplice/Affinata sulla scheda passa
              a una lente affinata (tuned lens) — un piccolo traduttore addestrato
-             che ripulisce gli strati intermedi.</p>
+             che ripulisce gli strati intermedi. La traiettoria sulla mappa è
+             una metafora visiva: proiettiamo lo stato interno sullo spazio
+             delle parole per renderlo leggibile, ma lo stato contiene molta
+             più informazione di "una parola in movimento".</p>
         </div>
         <div class="step tall" data-stage="layers" data-step="scrub">
           <p><strong>Continua a scorrere</strong> — oppure prendi il cursore degli
@@ -136,7 +139,10 @@
              — da un'assurdità all'inizio a una risposta sicura alla fine. A
              sinistra, guarda il token <em>viaggiare sulla mappa dei
              significati</em> mentre viene raffinato fino a diventare la
-             previsione.</p>
+             previsione. (Il viaggio sulla mappa è una metafora: proiettiamo
+             quello che il modello "ha in testa" sulla mappa delle parole per
+             poterlo vedere — lì dentro c'è molta più informazione di una
+             parola sola.)</p>
         </div>
       </div>
     </section>
@@ -171,8 +177,8 @@
           <p>La parola scelta riempie lo spazio vuoto in alto, si incolla alla
              frase — e tutto ricomincia per la parola dopo. Qui sotto il modello
              ha continuato la frase proprio alla temperatura che hai scelto:
-             a freddo scrive sempre la stessa cosa, a caldo ogni tentativo è
-             diverso (e a volte strano). <strong>Premi "Un'altra!"</strong> e
+             a freddo scrive sempre la stessa cosa, a caldo i tentativi sono
+             quasi sempre diversi (e a volte strani). <strong>Premi "Un'altra!"</strong> e
              confronta.</p>
           <p class="aa-note aa-detail">Le continuazioni sono state campionate
              offline dal modello vero, alcune varianti per ogni temperatura,
@@ -190,6 +196,10 @@
          pipeline — token, mappa, strati, scommesse — riparte per la
          parola successiva. Un intero saggio non è altro che questo ciclo,
          ripetuto migliaia di volte.</p>
+      <p class="outro-lead">Un'ultima cosa: "prevedere la prossima parola" è
+         l'obiettivo, non il metodo. Per scommettere bene, il modello ha
+         dovuto costruirsi dentro grammatica, riferimenti e regolarità del
+         mondo — è quello che hai visto formarsi, strato dopo strato.</p>
       <div class="outro-actions">
         <a class="btn-primary" href="architecture.html">Guarda l'intera macchina →</a>
         <button class="btn-ghost" onclick="document.getElementById('example-select').focus()">Prova un'altra frase ↑</button>
