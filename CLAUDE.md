@@ -147,8 +147,17 @@ they match the model's real probabilities at T=1; the v1.1 greedy
 `continuation` field, its "Add & predict again" button, and the dice-roll
 sampling button were removed with it), architecture-page
 "contamination lanes" (attention-rollout ink mixing with a layer scrubber;
-sink attention folded into self — see the comment in arch.js), manual controls
-alongside scroll (layer slider in Layers, temperature slider in Prediction —
+sink attention folded into self — see the comment in arch.js), Layers stage
+"transformer block" framing (2026-07: the layer slider became a clickable rail
+of identical block chips — same shape × N = the visual argument for "one kind
+of block applied over and over"; label reads "Blocco k di N"; the active chip
+pulses and the lens bars flash when scroll crosses into a new block; ▲▼ deltas
+on each lens bar vs the previous block; "listening lines" on the meaning map —
+head-averaged per-block attention from context-token anchors to the traveling
+marker, top-3, position-0 sink folded into self like arch.js; intro copy adds
+the listen→rework block schema and a "gemelli, non identici" same-architecture
+/different-weights aside), manual controls
+alongside scroll (block rail in Layers, temperature slider in Prediction —
 the non-scroll path for projectors and prefers-reduced-motion; scroll re-takes
 control on the next scroll event), UMAP meaning map (cosine, fit on the curated
 word pool, cached in umap_proj.pkl; tight visible clusters; trajectories are

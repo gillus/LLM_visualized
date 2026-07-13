@@ -121,8 +121,24 @@
         <div class="step" data-stage="layers" data-step="intro">
           <p class="step-kicker">Fase 3 · Strati</p>
           <h2>Il ragionamento, strato dopo strato</h2>
-          <p>L'IA fa passare i token attraverso molti <strong>strati</strong>.
-             Possiamo sbirciare la sua ipotesi migliore dopo ognuno di essi.</p>
+          <p>Dentro l'IA c'è una <strong>pila di blocchi</strong>, tutti
+             costruiti allo stesso modo. Ogni blocco fa due cose: prima
+             <strong>ascolta tutti i token letti finora</strong>, poi rielabora
+             quello che ha sentito con una piccola rete neurale — e
+             <strong>riscrive</strong> il significato del token. Il risultato
+             del primo blocco entra nel secondo, e così via fino in cima.</p>
+          <div class="block-schema" aria-hidden="true">
+            <span class="bs-in">tutti i token<br>letti finora</span>
+            <span class="bs-arr">⇢</span>
+            <span class="bs-block"><strong>blocco</strong><small>① ascolta&ensp;② rielabora</small></span>
+            <span class="bs-arr">⇢</span>
+            <span class="bs-out">significato<br>aggiornato</span>
+          </div>
+          <p class="bs-repeat" aria-hidden="true">…e si ripete, blocco dopo blocco</p>
+          <p>I blocchi sono <em>gemelli, non identici</em>: escono dallo stesso
+             stampo, ma ognuno ha le sue manopole interne, regolate durante
+             l'addestramento. E dopo ogni blocco possiamo sbirciare qual è
+             l'ipotesi migliore del momento.</p>
           <p class="aa-note aa-detail">Questo sbirciare si chiama logit lens (una
              lente sui significati): lo stato nascosto di ogni strato viene fatto
              passare attraverso la normalizzazione finale del modello e
@@ -134,15 +150,18 @@
              più informazione di "una parola in movimento".</p>
         </div>
         <div class="step tall" data-stage="layers" data-step="scrub">
-          <p><strong>Continua a scorrere</strong> — oppure prendi il cursore degli
-             strati sulla scheda. A destra, le ipotesi cambiano strato dopo strato
-             — da un'assurdità all'inizio a una risposta sicura alla fine. A
-             sinistra, guarda il token <em>viaggiare sulla mappa dei
-             significati</em> mentre viene raffinato fino a diventare la
-             previsione. (Il viaggio sulla mappa è una metafora: proiettiamo
-             quello che il modello "ha in testa" sulla mappa delle parole per
-             poterlo vedere — lì dentro c'è molta più informazione di una
-             parola sola.)</p>
+          <p><strong>Continua a scorrere</strong> — oppure clicca i blocchi in
+             cima alla scheda: ogni casella è un blocco, e quando il token lo
+             attraversa il blocco <em>si accende</em> e riscrive la sua
+             rappresentazione. A destra, le ipotesi cambiano blocco dopo blocco
+             — da un'assurdità all'inizio a una risposta sicura alla fine; le
+             frecce ▲▼ dicono cosa è appena salito o sceso. A sinistra, le
+             <em>linee sottili</em> mostrano quali parole della frase il blocco
+             sta ascoltando in questo momento, mentre il token viaggia sulla
+             mappa dei significati. (Il viaggio sulla mappa è una metafora:
+             proiettiamo quello che il modello "ha in testa" sulla mappa delle
+             parole per poterlo vedere — lì dentro c'è molta più informazione
+             di una parola sola.)</p>
         </div>
       </div>
     </section>

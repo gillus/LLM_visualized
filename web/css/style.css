@@ -466,7 +466,13 @@ main { counter-reset: stage; }
   paint-order: stroke; stroke: #fbf7ec; stroke-width: 3; }
 .map-caption { font-size: 11px; fill: var(--muted); font-style: italic; font-family: var(--body); }
 .lens-bars { display: flex; flex-direction: column; gap: 8px; justify-content: center; flex: 1; min-width: 0; }
-.lens-row { display: grid; grid-template-columns: 92px 1fr 54px; align-items: center; gap: 10px; }
+/* one-shot brightness flash when a block fires and the ranking is rewritten */
+.lens-bars.refreshed { animation: lens-flash 0.4s ease-out; }
+@keyframes lens-flash {
+  0% { filter: brightness(1.3); }
+  100% { filter: brightness(1); }
+}
+.lens-row { display: grid; grid-template-columns: 92px 1fr 54px 14px; align-items: center; gap: 10px; }
 .lens-word { font-weight: 600; text-align: right; overflow: hidden; text-overflow: ellipsis;
   font-family: var(--mono); font-size: 14.5px; white-space: pre; }
 .lens-track { background: var(--bar-bg); border-radius: 6px; height: 22px; overflow: hidden;
@@ -475,6 +481,43 @@ main { counter-reset: stage; }
   transition: width .25s; }
 .lens-pct { font-size: 12.5px; color: var(--muted); font-family: var(--mono);
   font-variant-numeric: tabular-nums; }
+.lens-delta { font-size: 10px; text-align: center; line-height: 1; }
+.lens-delta.up { color: #16a34a; }
+.lens-delta.down { color: #dc2626; }
+.lens-delta.same { color: var(--muted); opacity: 0.6; }
+
+/* block rail — one chip per transformer block, all identical on purpose:
+   the repetition IS the message (same kind of block, applied N times) */
+.block-rail { display: flex; align-items: center; gap: 3px; flex: 1; min-width: 0; }
+.blk { flex: 1 1 0; min-width: 4px; height: 20px; padding: 0; cursor: pointer;
+  border: 1.5px solid var(--line-strong); border-radius: 4px; background: var(--panel);
+  transition: background 0.2s, border-color 0.2s; }
+.blk:hover { border-color: var(--ink); }
+.blk-start { flex: 0 0 10px; height: 10px; border-radius: 50%; }
+.blk.done { background: color-mix(in srgb, var(--blue) 30%, var(--panel));
+  border-color: color-mix(in srgb, var(--blue) 65%, var(--panel)); }
+.blk.active { background: var(--blue); border-color: var(--blue); }
+.blk.fired { animation: blk-fire 0.5s ease-out; }
+@keyframes blk-fire {
+  0% { transform: scale(1.3, 1.55); filter: brightness(1.35); }
+  100% { transform: none; filter: none; }
+}
+
+/* "listening lines" on the layers map — who the active block is attending to */
+.attn-line { stroke-linecap: round; }
+
+/* intro-step mini schema: tokens → block (listen · rework) → updated meaning */
+.block-schema { display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin: 16px 0 6px; font-family: var(--mono); font-size: 11px; color: var(--ink-soft); }
+.bs-in, .bs-out { text-align: center; line-height: 1.4; }
+.bs-arr { font-size: 16px; color: var(--muted); flex: 0 0 auto; }
+.bs-block { display: flex; flex-direction: column; gap: 2px; align-items: center;
+  border: 1.5px solid var(--ink); border-radius: 8px; padding: 8px 13px;
+  background: var(--panel); box-shadow: 2px 2px 0 rgba(42, 36, 24, 0.12); }
+.bs-block strong { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+.bs-block small { color: var(--muted); font-size: 10px; }
+.bs-repeat { text-align: center; font-family: var(--mono); font-size: 11px;
+  color: var(--muted); margin-top: 2px; }
 
 /* ---- stage 4: attention ---- */
 .attn-svg { width: 100%; height: 100%; }
@@ -579,6 +622,9 @@ main { counter-reset: stage; }
   .hero-lead { font-size: 16px; }
   .layers-body { flex-direction: column; }
   .map-box { flex: 0 0 45%; }
+  .block-rail { gap: 2px; }
+  .blk { height: 16px; border-radius: 3px; border-width: 1px; }
+  .block-schema { gap: 7px; font-size: 10px; }
   #rail { bottom: 10px; max-width: calc(100vw - 16px); overflow-x: auto; }
   .rail-link { padding: 6px 9px; font-size: 11px; }
 }
@@ -586,7 +632,9 @@ main { counter-reset: stage; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .lens-fill, .pred-fill, .tok-chip, .strip-chip, .cloud-word, .step,
-  .btn-primary, .btn-ghost, .rail-link { transition: none; }
+  .btn-primary, .btn-ghost, .rail-link, .blk { transition: none; }
+  .blk.fired { animation: none; }
+  .lens-bars.refreshed { animation: none; }
   .step { transform: none; }
   .hero-kicker, #hero h1, .hero-lead, .hero-pipeline, .hero-scroll { animation: none; }
   .hero-scroll svg { animation: none; }
