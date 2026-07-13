@@ -99,7 +99,8 @@ body {
 /* simple-mode only: .aa-detail content (technical asides, raw numbers) stays
    in the markup but is never shown; same for the Plain/Tuned lens toggle */
 .aa-detail { display: none !important; }
-.lens-toggle { display: none; }
+/* !important: the stage-3 block below still styles .lens-toggle as flex */
+.lens-toggle { display: none !important; }
 
 /* "for the curious" technical asides inside step cards */
 .aa-note {
