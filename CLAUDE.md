@@ -203,7 +203,9 @@ standalone tab (web/attention.html: a 64-second chaptered animation — sentence
 moved toward its sport sense by attention; React UMD from CDN renders
 web/js/anim/engine.js + scene.js, plain JS pre-transpiled offline from a
 claude.ai artifact's JSX, fonts/letterbox re-themed to the site; autoplay off,
-pauses at chapter ends, overlay is click/tap-to-start), nav order
+pauses at chapter ends, overlay is click/tap-to-start; the playback bar's
+video-export button only postMessages the claude.ai artifact host, so it's
+hidden when the page is top-level — i.e. always on this site), nav order
 game → attention → story → architecture → training → teachers (+ external
 prompt guide), and the phrase picker moved out of the header into a row below
 it (inside #strip-bar on index, its own #picker-bar on architecture).

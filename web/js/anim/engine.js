@@ -875,12 +875,16 @@ function PlaybackBar({
       textAlign: 'left',
       color: 'rgba(246,244,239,0.55)'
     }
-  }, fmt(duration)), typeof VideoEncoder !== 'undefined' && /*#__PURE__*/React.createElement(IconButton, {
+  }, fmt(duration)), typeof VideoEncoder !== 'undefined' &&
+  // the export button only asks a hosting iframe (claude.ai artifacts) to
+  // render the video — standalone (top-level, like this site) nobody answers,
+  // so don't show a dead button
+  window.parent !== window && /*#__PURE__*/React.createElement(IconButton, {
     title: "Export video",
     onClick: () => window.parent.postMessage({
       type: 'omelette:request-video-export'
     }, '*')
-  }, /*#__PURE__*/React.createElement("svg", {
+  },/*#__PURE__*/React.createElement("svg", {
     width: "14",
     height: "14",
     viewBox: "0 0 14 14",
