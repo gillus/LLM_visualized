@@ -37,3 +37,7 @@ data format.
 
 Vanilla ES modules + [D3](https://d3js.org) + [Scrollama](https://github.com/russellsamora/scrollama)
 (both via CDN). No build step.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
