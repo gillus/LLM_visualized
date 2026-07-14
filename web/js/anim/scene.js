@@ -863,7 +863,7 @@ function MapCard({
       fontWeight: 600,
       whiteSpace: 'nowrap'
     }
-  }, "dopo il blocco"), ptO > 0 && /*#__PURE__*/React.createElement("div", {
+  }, "dopo l'attenzione"), ptO > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'absolute',
       left: pt.x,
