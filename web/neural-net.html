@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f5efe2" />
+  <title>Come impara una macchina? — il laboratorio della rete neurale</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,650;0,9..144,800;1,9..144,500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Spline+Sans+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://pyscript.net/releases/2026.7.3/core.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <!-- PyScript runs web/py/*.py in the browser (MicroPython: small + fast to start) -->
+  <script type="module" src="https://pyscript.net/releases/2026.7.3/core.js"></script>
+</head>
+<body>
+  <header id="top-bar">
+    <div class="title">
+      <svg class="logo" viewBox="0 0 26 26" aria-hidden="true">
+        <rect x="3"  y="17" width="20" height="4" rx="2" class="lg1"/>
+        <rect x="6"  y="11" width="14" height="4" rx="2" class="lg2"/>
+        <rect x="9"  y="5"  width="8"  height="4" rx="2" class="lg3"/>
+      </svg>
+      <span>Come impara una macchina?</span>
+    </div>
+    <nav class="nav-tabs">
+      <a href="neural-net.html" class="active">Rete neurale</a>
+      <a href="embedding-game.html">Gioco della mappa delle parole</a>
+      <a href="attention.html">Come funziona l'attenzione?</a>
+      <a href="index.html">La storia della previsione</a>
+      <a href="architecture.html">Architettura</a>
+      <a href="training.html">Come si addestra</a>
+      <a href="teachers.html">Per gli insegnanti</a>
+      <a href="guida-prompt.html" class="tab-external" target="_blank" rel="noopener" title="Si apre in una nuova scheda">Guida ai prompt&nbsp;&#8599;</a>
+    </nav>
+  </header>
+
+  <main class="nn-main">
+    <section class="nn-intro">
+      <h2>Quanto vale questa casa?</h2>
+      <p class="arch-lead">Un'agenzia immobiliare deve decidere il prezzo di una
+        casa. Non ha regole scritte a mano: ha le <strong>vendite passate</strong>.
+        Qui insegniamo a una macchina a indovinare i prezzi guardando quegli
+        esempi — prima con una semplice <strong>linea</strong>, poi con una
+        piccola <strong>rete neurale</strong>. Puoi allenarle tu, e vedere
+        chi indovina meglio le case che non ha mai visto.</p>
+      <p class="nn-status" id="py-status" data-state="loading">
+        <span class="dot" aria-hidden="true"></span>
+        <span id="py-status-text">Sto accendendo Python nel tuo browser…</span>
+      </p>
+    </section>
+
+    <!-- ① DATA -->
+    <section class="nn-section" id="sec-data" style="--stage: var(--ink-soft)">
+      <h3 class="nn-h"><span class="nn-num">1</span> I dati: le vendite passate</h3>
+      <p class="nn-lead">Ogni puntino è una casa venduta, con le sue caratteristiche
+        e il prezzo finale. Sono le nostre <em>flashcard</em>: per ognuna sappiamo
+        già la risposta giusta. Una parte delle case la <strong>teniamo da
+        parte</strong>: la macchina non la vedrà mai mentre impara. Servirà alla
+        fine, come un compito in classe con esercizi nuovi.</p>
+      <div class="nn-grid">
+        <div class="nn-card">
+          <div class="nn-chart-head">
+            <span class="nn-chart-lbl">Prezzo rispetto a…</span>
+            <div class="chips" id="data-dir" role="group" aria-label="Scegli cosa mettere sull'asse orizzontale"></div>
+          </div>
+          <div class="nn-chart" id="data-chart"></div>
+          <ul class="nn-legend">
+            <li><span class="sw dot-train"></span> case per allenarsi (<span id="n-train">–</span>)</li>
+            <li><span class="sw dot-test"></span> case tenute da parte (<span id="n-test">–</span>)</li>
+          </ul>
+        </div>
+        <div class="nn-card nn-side">
+          <h4 class="panel-h">Lo storico dell'agenzia</h4>
+          <div class="nn-table-wrap">
+            <table class="nn-table" id="data-table"></table>
+          </div>
+          <p class="nn-note">Prova a cambiare l'asse del grafico: con la
+            <strong>superficie</strong> i puntini salgono dolcemente; con la
+            <strong>distanza dal centro</strong> c'è un <em>salto</em>. Ricordatelo:
+            sarà importante.</p>
+          <p class="nn-note muted">Le case sono inventate (un'agenzia immaginaria),
+            ma seguono una regola realistica — più un po' di caso.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ② THE LINE -->
+    <section class="nn-section" id="sec-line" style="--stage: var(--amber)">
+      <h3 class="nn-h"><span class="nn-num">2</span> La linea: prova, misura, correggi</h3>
+      <p class="nn-lead">Il modello più semplice guarda <strong>solo la superficie</strong>:
+        <span class="formula">prezzo = <b>pendenza</b> × m² + <b>base</b></span>.
+        Due numeri, due manopole. Le barrette arancioni sono l'errore su ogni
+        casa. Prova prima tu a muovere le manopole — poi lascia fare al computer.</p>
+      <div class="nn-grid">
+        <div class="nn-card">
+          <div class="nn-chart-head">
+            <span class="nn-chart-lbl">Prezzo rispetto alla superficie</span>
+            <label class="nn-check"><input type="checkbox" id="line-color" />
+              colora per distanza dal centro</label>
+          </div>
+          <div class="nn-chart" id="line-chart"></div>
+          <ul class="nn-legend" id="line-legend">
+            <li><span class="sw dot-train"></span> case per allenarsi</li>
+            <li><span class="sw bar-err"></span> errore</li>
+            <li class="dist-key" hidden><span class="sw grad-dist"></span> vicino → lontano dal centro</li>
+          </ul>
+        </div>
+        <div class="nn-card nn-side">
+          <div class="nn-big">
+            <span class="nn-big-lbl">Errore medio</span>
+            <span class="nn-big-val" id="line-mae">–</span>
+            <svg class="nn-spark" id="line-spark" viewBox="0 0 200 36" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <span class="nn-big-sub">di quanto sbaglia, in media, su una casa · passi: <b id="line-steps">0</b></span>
+          </div>
+          <p class="formula big" id="line-formula">prezzo = – × m² + –</p>
+          <label class="nn-slider">
+            <span>pendenza <small>(€ in più per ogni m²)</small></span>
+            <input type="range" id="line-slope" min="0" max="4000" step="10" disabled />
+          </label>
+          <label class="nn-slider">
+            <span>base <small>(il prezzo di partenza)</small></span>
+            <input type="range" id="line-base" min="-150000" max="300000" step="1000" disabled />
+          </label>
+          <div class="nn-actions">
+            <button type="button" class="game-btn" id="line-train" disabled>▶ Allena</button>
+            <button type="button" class="game-btn ghost" id="line-one" disabled>Un passo</button>
+            <button type="button" class="game-btn ghost" id="line-reset" disabled>Ricomincia</button>
+          </div>
+          <p class="nn-note">Ogni <strong>passo</strong>: il computer misura
+            l'errore sulle case già vendute e ritocca un po' le due manopole. All'inizio
+            esagera e oscilla, poi si assesta.</p>
+        </div>
+      </div>
+      <p class="nn-callout">Anche nella posizione migliore la linea sbaglia parecchio.
+        Colora le case per distanza: i puntini <strong>molto sopra</strong> la linea
+        sono quasi tutti case vicine al centro. La linea non può saperlo — guarda
+        solo i metri quadri.</p>
+    </section>
+
+    <!-- ③ THE NETWORK -->
+    <section class="nn-section" id="sec-nn" style="--stage: var(--blue)">
+      <h3 class="nn-h"><span class="nn-num">3</span> La rete neurale: tanti piccoli neuroni</h3>
+      <p class="nn-lead">Ora il modello vede <strong>tutte e tre</strong> le
+        informazioni. Ogni <strong>neurone</strong> è una piccola regressione: pesa
+        i segnali che riceve, li somma, e schiaccia il risultato tra 0 e 1 con una
+        curva a S. L'ultimo passaggio somma le risposte dei neuroni nel prezzo.
+        Scegli quanti neuroni usare, poi allena.</p>
+
+      <div class="arch-pick" id="arch-pick" role="radiogroup" aria-label="Quanti neuroni?">
+        <button type="button" role="radio" data-arch="1">
+          <span class="arch-name">1 neurone</span><span class="arch-sub">6 manopole</span></button>
+        <button type="button" role="radio" data-arch="2">
+          <span class="arch-name">2 neuroni</span><span class="arch-sub">11 manopole</span></button>
+        <button type="button" role="radio" data-arch="2x2">
+          <span class="arch-name">2 strati × 2 neuroni</span><span class="arch-sub">17 manopole</span></button>
+      </div>
+
+      <div class="nn-grid nn-grid-even">
+        <div class="nn-card">
+          <div class="nn-chart-head">
+            <span class="nn-chart-lbl">La rete</span>
+            <span class="nn-wkey"><i class="pos"></i> spinge in su <i class="neg"></i> spinge in giù · più spessa = conta di più</span>
+          </div>
+          <div class="nn-chart" id="net-diagram"></div>
+          <p class="nn-note" id="net-caption">Dentro ogni neurone: la sua curva.</p>
+        </div>
+        <div class="nn-card">
+          <div class="nn-chart-head">
+            <span class="nn-chart-lbl">Contro le case mai viste, lungo…</span>
+            <div class="chips" id="nn-dir" role="group" aria-label="Scegli la direzione da guardare"></div>
+          </div>
+          <div class="nn-chart" id="nn-chart"></div>
+          <ul class="nn-legend">
+            <li><span class="sw dot-test solid"></span> prezzo vero</li>
+            <li><span class="sw ring-pred"></span> previsione della rete</li>
+            <li><span class="sw line-curve"></span> una casa tipica</li>
+          </ul>
+          <p class="nn-note muted" id="typical-note"></p>
+        </div>
+      </div>
+
+      <div class="nn-train-bar">
+        <div class="nn-actions">
+          <button type="button" class="game-btn" id="nn-train" disabled>▶ Allena</button>
+          <button type="button" class="game-btn ghost" id="nn-reset" disabled>Ricomincia</button>
+        </div>
+        <div class="nn-stats">
+          <div><span>giri di addestramento</span><b id="nn-epochs">0</b></div>
+          <div><span>errore sulle case per allenarsi</span><b id="nn-mae-train">–</b></div>
+          <div class="nn-hl"><span>errore sulle case mai viste</span><b id="nn-mae-test">–</b></div>
+        </div>
+      </div>
+      <p class="nn-callout">Nessuno dice ai neuroni cosa cercare. Con
+        <strong>2 neuroni</strong>, guarda la direzione «distanza dal centro»: di
+        solito uno dei due impara da solo a rispondere <em>«è in centro?»</em> — la
+        sua curva diventa un gradino. Con <strong>1 neurone</strong> non ci riesce:
+        deve fare tutto da solo. (Se il gradino non compare e l'errore resta alto,
+        premi <em>Ricomincia</em>: ogni tanto la rete parte col piede sbagliato e si
+        incastra — succede anche alle reti vere.)</p>
+    </section>
+
+    <!-- ④ REPORT CARD -->
+    <section class="nn-section" id="sec-report" style="--stage: var(--green)">
+      <h3 class="nn-h"><span class="nn-num">4</span> La pagella: chi indovina meglio?</h3>
+      <p class="nn-lead">Il voto che conta è sulle <strong>case mai viste</strong>:
+        è facile andare bene sugli esempi che hai studiato, il difficile è
+        indovinare quelli nuovi. La pagella si riempie man mano che alleni i
+        modelli qui sopra.</p>
+      <div class="nn-card">
+        <table class="report" id="report"></table>
+      </div>
+      <ul class="nn-takeaways">
+        <li><strong>Più informazioni aiutano:</strong> la linea vede solo i metri
+          quadri; la rete vede anche distanza e anno.</li>
+        <li><strong>Più neuroni = curve più ricche:</strong> un neurone sa fare una
+          sola curva a S; due neuroni possono dividersi il lavoro.</li>
+        <li><strong>Più grande non vuol dire sempre meglio:</strong> per queste case
+          2 neuroni bastano — il terzo modello ha più manopole da regolare, ma di
+          solito non indovina molto meglio.</li>
+        <li><strong>Un modello linguistico è la stessa idea</strong>, con miliardi di
+          manopole invece di 17, e parole invece di case.</li>
+      </ul>
+    </section>
+
+    <details class="nn-code">
+      <summary>Guarda il codice Python che fa tutti i calcoli di questa pagina</summary>
+      <p class="nn-note">Gira davvero nel tuo browser, grazie a
+        <a href="https://pyscript.net" target="_blank" rel="noopener">PyScript</a>.
+        Il JavaScript della pagina si limita a disegnare.</p>
+      <pre><code id="py-src">caricamento…</code></pre>
+    </details>
+  </main>
+
+  <script>
+    // On file:// the browser blocks ES modules and fetch, so the page would
+    // stay silently blank. Classic inline scripts still run — explain why.
+    if (location.protocol === "file:") {
+      var b = document.createElement("div");
+      b.className = "load-error";
+      b.innerHTML = "<strong>Questa pagina non funziona se aperta direttamente da una cartella.</strong> " +
+        "Il browser blocca il caricamento del suo codice e dei suoi dati. Devi invece pubblicarla: " +
+        "esegui <code>python3 -m http.server</code> dentro la cartella <code>web/</code>, " +
+        "poi apri <code>http://localhost:8000</code> — oppure usa il link online.";
+      document.body.prepend(b);
+    }
+  </script>
+  <script type="module" src="js/nn.js"></script>
+  <script type="mpy" src="py/main.py"
+          config='{"files": {"./py/nnlab.py": "./nnlab.py", "./house_prices.json": "./house_prices.json"}}'></script>
+</body>
+</html>

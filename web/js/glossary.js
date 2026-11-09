@@ -82,6 +82,17 @@ export const TERMS = [
             "del modello a ogni strato; l'interruttore “Affinata” " +
             "aggiunge un piccolo traduttore addestrato che ripulisce gli " +
             "strati intermedi." },
+  { term: "Neurone",
+    def: "Il mattoncino di una rete neurale: pesa i numeri che riceve, li " +
+         "somma e “schiaccia” il risultato tra 0 e 1 con una curva a S. " +
+         "Da solo è una piccola regressione; tanti neuroni a strati " +
+         "imparano legami complicati. Provalo nella scheda “Rete neurale”.",
+    detail: "Qui: attivazione sigmoide; nei modelli linguistici moderni si " +
+            "usano curve simili (es. SiLU) nella parte feed-forward." },
+  { term: "Dati di verifica (test)",
+    def: "Esempi tenuti da parte che il modello non vede mai mentre impara. " +
+         "Servono a controllare se ha capito davvero o se ha solo " +
+         "imparato a memoria — come un compito con esercizi nuovi." },
   { term: "Pesi (weights)",
     def: "I numeri dentro il modello che l'addestramento modifica — 135 " +
          "milioni in questo modello piccolo. Tutto ciò che “sa” è " +
