@@ -39,10 +39,13 @@
       <p class="guide-lead">Tutto qui è costruito attorno a un'unica idea che
         i tuoi studenti possono comprendere appieno:
         <strong>un modello linguistico scrive prevedendo una parola alla
-        volta.</strong> Le quattro schede esplorano questa idea da
+        volta.</strong> Le schede esplorano questa idea da
         angolazioni diverse, usando un modello reale (deliberatamente
         piccolo) — SmolLM2-135M — i cui numeri sono stati calcolati una
-        volta sola, offline, e fissati per la pagina.</p>
+        volta sola, offline, e fissati per la pagina. Fa eccezione la
+        scheda <em>Rete neurale</em>, che viene prima delle parole: lì una
+        piccolissima rete impara davvero, dal vivo, a stimare il prezzo
+        delle case.</p>
       <div class="guide-actions">
         <button type="button" class="btn-primary" onclick="window.print()">Stampa questa guida</button>
       </div>
@@ -51,19 +54,22 @@
     <section class="guide-panel">
       <h2>Prima della lezione: come si comporta il sito</h2>
       <ul class="guide-list">
-        <li><strong>Niente viene eseguito dal vivo.</strong> Le pagine
-          riproducono dati precalcolati — nessun account, nessuna chat,
-          niente in cui uno studente possa scrivere. Sicuro da
-          distribuire.</li>
+        <li><strong>Il modello linguistico non gira dal vivo.</strong> Le
+          pagine riproducono dati precalcolati — nessun account, nessuna
+          chat, niente in cui uno studente possa scrivere. Sicuro da
+          distribuire. L'unica cosa che gira davvero nel browser è la
+          piccola rete della scheda <em>Rete neurale</em> (in Python): la
+          prima volta serve internet per scaricare Python, poi basta
+          qualche secondo.</li>
         <li><strong>Il linguaggio è calibrato per la classe.</strong> Tutte
           le pagine parlano semplice, senza gergo; i dettagli tecnici che
           servono a te (terminologia reale, numeri, limiti delle
           visualizzazioni) li trovi in questa guida.</li>
         <li><strong>Non devi mai guidare con lo scroll su un
           proiettore.</strong> Ogni elemento visivo controllato dallo
-          scroll ha anche controlli manuali sulla scheda: uno slider degli
-          strati in Strati, uno slider della temperatura in Previsione. La
-          mini-barra a destra permette di saltare tra le fasi.</li>
+          scroll ha anche controlli manuali sulla scheda: i blocchi cliccabili
+          in Strati, uno slider della temperatura in Previsione. La
+          barra in basso al centro permette di saltare tra le fasi.</li>
         <li><strong>Il selettore di frasi</strong> (subito sotto
           l'intestazione, nelle pagine della storia e dell'architettura)
           permette di passare tra
@@ -72,8 +78,9 @@
           France is called…"</em> — sono una coppia intenzionale; vedi
           l'esperimento qui sotto.</li>
         <li><strong>Ogni scheda è autonoma.</strong> Una suddivisione che
-          funziona: lezione 1 = La storia della previsione + l'esperimento
-          di Parigi; lezione 2 = Gioco della mappa delle parole (10 min) +
+          funziona: lezione 0 (facoltativa, ma un ottimo inizio) = Rete
+          neurale, per capire cosa vuol dire "addestrare"; lezione 1 = La
+          storia della previsione + l'esperimento di Parigi; lezione 2 = Gioco della mappa delle parole (10 min) +
           Come funziona l'attenzione? (il gioco mostra un punto fisso per
           parola, l'attenzione mostra il punto che si <em>sposta</em> col
           contesto — vanno in coppia); lezione 3 = Come si addestra; Tutta
@@ -151,7 +158,10 @@
           «è in centro?». Se non succede, «Ricomincia» — anche questo è
           istruttivo.</li>
         <li>Chiudi con la pagella: errore sulle case mai viste, modello per
-          modello.</li>
+          modello. Attenzione a cosa si confronta: tra la linea e la rete
+          cambiano <em>due</em> cose insieme (più informazioni e curve più
+          ricche). Il confronto pulito è 1 neurone contro 2 neuroni: stesse
+          informazioni, cambia solo quante curve a S può combinare.</li>
       </ul>
       <h3>Chiedi alla classe</h3>
       <dl class="guide-qa">
@@ -211,11 +221,6 @@
         <dd>Le parole comuni si guadagnano un token privato; le parole rare
           vengono assemblate da pezzi riutilizzabili. Lo spazio del
           vocabolario è un budget limitato.</dd>
-        <dt>"Quando il modello legge 'she', come fa a capire chi sia 'she'?"</dt>
-        <dd>Attenzione: "she" guarda indietro e recupera "Maria". Non è
-          stata programmata nessuna regola grammaticale — questa abitudine
-          è stata imparata. Per vederlo, apri la scheda «Come funziona
-          l'attenzione?» o le corsie d'inchiostro in Architettura.</dd>
         <dt>"Se 'bed' è solo al 7%, il modello ha sbagliato?"</dt>
         <dd>No — con ~49.000 opzioni possibili, il 7% è una vittoria
           schiacciante. Un buon punto per parlare di cosa significhi
@@ -250,7 +255,7 @@
           spesso così. Il modello scommette su come procedono le frasi,
           non su ciò che è vero.</li>
         <li>Ora seleziona <em>"The capital city of France is called…"</em>
-          — una parola in più di contesto e <strong>Paris sale al
+          — due parole in più di contesto e <strong>Paris sale al
           73%</strong>.</li>
         <li>Bilancio finale: ecco perché la formulazione conta quando parli
           con un chatbot, e perché "lo ha detto con sicurezza" non è una
@@ -300,8 +305,56 @@
     </section>
 
     <section class="guide-panel">
-      <h2>Scheda 3 · Come si addestra <span class="guide-time">~20 min guidati</span></h2>
-      <p class="guide-note">"Da pappagallo a compagno": la stessa domanda —
+      <h2>Scheda 3 · Come funziona l'attenzione? <span class="guide-time">~10 min</span></h2>
+      <p class="guide-note">Un'animazione di circa un minuto, in cinque
+        capitoli (Ambiguità → La mappa → Attenzione → Lo spostamento → Gli
+        strati), sulla frase «Ai rigori finisce la partita di calcio». È un
+        <em>disegno</em> del meccanismo, non i numeri veri di SmolLM2: i
+        numeri misurati sul modello sono nelle corsie d'inchiostro di
+        <em>Tutta la macchina</em>.</p>
+      <h3>Obiettivi di apprendimento</h3>
+      <ul class="guide-list">
+        <li>Il significato di una parola <strong>dipende dal contesto</strong>:
+          il punto di una parola sulla mappa non è fisso.</li>
+        <li>L'attenzione è il modo in cui una parola <strong>guarda le
+          parole precedenti</strong> e decide quanto peso dare a
+          ciascuna.</li>
+        <li>Il passaggio si ripete in ogni strato: il significato si
+          affina un po' alla volta.</li>
+      </ul>
+      <h3>Come condurla</h3>
+      <ul class="guide-list">
+        <li>Fallo dopo il Gioco della mappa: lì ogni parola aveva un punto
+          fisso, qui lo vedono <em>muoversi</em>.</li>
+        <li>L'animazione si ferma da sola alla fine di ogni capitolo
+          (spazio o ▶ per ripartire, ←/→ per muoversi piano). Usa le
+          pause: prima del capitolo «Attenzione», chiedi alla classe quali
+          parole aiutano a capire «calcio».</li>
+        <li>Fai notare che «calcio» guarda solo <em>indietro</em>: le
+          parole dopo non le ha ancora lette (il modello scrive da sinistra
+          a destra).</li>
+      </ul>
+      <h3>Chiedi alla classe</h3>
+      <dl class="guide-qa">
+        <dt>"Quali parole ti hanno fatto capire che «calcio» è lo sport?"</dt>
+        <dd>«partita» e «rigori» — esattamente quelle a cui l'animazione dà
+          più peso. Nessuno ha scritto una regola per il modello: ha
+          imparato da solo, leggendo, quali parole è utile guardare.</dd>
+        <dt>"E se la frase fosse «Il latte contiene molto calcio»?"</dt>
+        <dd>Le parole utili sarebbero «latte» e «contiene», e il punto
+          si sposterebbe verso l'elemento chimico. Stessa parola,
+          contesto diverso, significato diverso.</dd>
+        <dt>"Quando il modello legge 'she', come fa a sapere chi è?"</dt>
+        <dd>Con lo stesso trucco: "she" guarda indietro e recupera
+          "Maria". Nessuno ha programmato una regola grammaticale: questa
+          abitudine è stata imparata. Nella frase «When Maria dropped her cup, she…» di
+          <em>Tutta la macchina</em> lo si vede sui numeri veri.</dd>
+      </dl>
+    </section>
+
+    <section class="guide-panel">
+      <h2>Scheda 4 · Come si addestra <span class="guide-time">~20 min guidati</span></h2>
+      <p class="guide-note">"Da pappagallo a partner": la stessa domanda —
         "Why is the sky blue?" — posta dopo ciascuna delle tre fasi di
         scuola. Le fasi 1–2 sono output reali di SmolLM2; la fase RL è
         illustrativa (il sito stesso lo dichiara).</p>
@@ -343,11 +396,16 @@
           un tema: difficile — per questo servono ancora le preferenze
           umane, ed è per questo che i modelli sono più forti dove le
           risposte sono verificabili.</dd>
+        <dt>"Se le onde corte si diffondono di più, perché il cielo non è viola?"</dt>
+        <dd>Domanda da applauso. Il viola si diffonde ancora più del blu,
+          ma la luce del Sole ne contiene meno, una parte viene assorbita
+          in alto nell'atmosfera, e i nostri occhi sono molto più sensibili
+          al blu. Risultato: vediamo il cielo azzurro.</dd>
       </dl>
     </section>
 
     <section class="guide-panel">
-      <h2>Scheda 4 · Tutta la macchina <span class="guide-time">approfondimento</span></h2>
+      <h2>Scheda 5 · Tutta la macchina <span class="guide-time">approfondimento</span></h2>
       <p class="guide-note">Per gli studenti che chiedono "ma cosa c'è
         <em>dentro</em>?" Due visualizzazioni: lo schema a blocchi (clicca
         sullo Strato Transformer per espanderlo) e il pannello di
@@ -361,6 +419,14 @@
     <section class="guide-panel">
       <h2>Domande che gli studenti fanno sempre</h2>
       <dl class="guide-qa">
+        <dt>"Perché le frasi sono in inglese?"</dt>
+        <dd>Perché SmolLM2 ha letto quasi solo testi in inglese: è la
+          lingua che ha imparato a "parlare". In italiano le sue
+          previsioni sarebbero molto peggiori — un bel promemoria che un
+          modello sa solo quello che ha letto. Le frasi sono semplici
+          apposta, così bastano poche parole d'inglese per seguirle. (I
+          chatbot grandi hanno letto testi in moltissime lingue, italiano
+          compreso.)</dd>
         <dt>"Funziona così anche ChatGPT?"</dt>
         <dd>Stessa ricetta, ma molto più grande. Questo modello ha 135
           milioni di parametri; i modelli più avanzati ne hanno migliaia di
