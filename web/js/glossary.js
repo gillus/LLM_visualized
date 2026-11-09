@@ -85,7 +85,7 @@ export const TERMS = [
   { term: "Neurone",
     def: "Il mattoncino di una rete neurale: pesa i numeri che riceve, li " +
          "somma e “schiaccia” il risultato tra 0 e 1 con una curva a S. " +
-         "Da solo è una piccola regressione; tanti neuroni a strati " +
+         "Da solo sa fare una sola curva a S; tanti neuroni a strati " +
          "imparano legami complicati. Provalo nella scheda “Rete neurale”.",
     detail: "Qui: attivazione sigmoide; nei modelli linguistici moderni si " +
             "usano curve simili (es. SiLU) nella parte feed-forward." },
