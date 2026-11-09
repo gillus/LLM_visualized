@@ -30,11 +30,15 @@ generate/
   fixture.py         # writes a SYNTHETIC cat-sat.json so the site runs w/o the model
   train_tuned_lens.py # trains a tuned lens → tuned_lens.pt (optional, denoises mid layers)
   tuned_lens_model.py # shared TunedLens definition (trainer + generator import it)
+  house_prices.py    # synthetic house data → web/house_prices.json (Rete neurale tab; stdlib only)
   projection.pkl     # cached PCA transform (created on first run; shared by all examples)
   tuned_lens.pt      # cached tuned lens (created by train_tuned_lens.py; optional)
 web/
   index.html      # scrolly sections + sticky chrome (CDN: d3, scrollama)
   attention.html  # "Come funziona l'attenzione?" — 60s guided animation (CDN: React UMD)
+  neural-net.html # "Come impara una macchina?" — trains a line + tiny MLP LIVE (CDN: PyScript)
+  py/             # Python run in the page by PyScript (MicroPython): main.py = glue
+                  #   exposing window.NNPY; nnlab.py = pure-Python models (CPython-testable)
   css/style.css
   js/
     main.js       # orchestrator: load example, mount stages, wire Scrollama, state
@@ -58,6 +62,7 @@ web/
 python3 generate/fixture.py          # writes web/examples/cat-sat.json
 python3 generate/embedding_game.py --fixture  # writes web/embedding_game.json (Word Map Game tab)
 python3 generate/training.py --fixture        # writes web/training.json ("How it's trained" tab)
+python3 generate/house_prices.py              # writes web/house_prices.json (Rete neurale tab; synthetic, no model)
 cd web && python3 -m http.server 8000 # open http://localhost:8000
 
 # 2. Generate REAL data from SmolLM2 (replaces the fixture):
@@ -98,7 +103,9 @@ There is **no build step** — plain ES modules + CDN libraries. Just serve `web
   (30 layers, 9 heads) both working from the same code.
 - **Keep heavy work offline.** At scroll time the JS only decodes/interpolates
   precomputed values — no matrix math beyond a small softmax. Scroll handlers must
-  be cheap.
+  be cheap. The one deliberate exception is the Rete neurale tab, whose whole
+  point is live training: tiny models (≤17 params, 80 houses) trained in
+  MicroPython in small per-frame chunks so the page never freezes.
 - **Attention is the size-sensitive block** — stored as `ragged_q8` (causal rows
   only, int8). If you change its encoding, update both `generate.py` and
   `decode.js`, and bump the `encoding` tag.
@@ -206,9 +213,22 @@ claude.ai artifact's JSX, fonts/letterbox re-themed to the site; autoplay off,
 pauses at chapter ends, overlay is click/tap-to-start; the playback bar's
 video-export button only postMessages the claude.ai artifact host, so it's
 hidden when the page is top-level — i.e. always on this site), nav order
-game → attention → story → architecture → training → teachers (+ external
-prompt guide), and the phrase picker moved out of the header into a row below
-it (inside #strip-bar on index, its own #picker-bar on architecture).
+neural-net → game → attention → story → architecture → training → teachers
+(+ external prompt guide), and the phrase picker moved out of the header into a row below
+it (inside #strip-bar on index, its own #picker-bar on architecture),
+"Rete neurale" tab (2026-11, web/neural-net.html — "Come impara una macchina?",
+the lesson deck's house-price example: ① training data (scatter with a
+feature picker + full table, 80 train / 40 held-out test houses, synthetic
+from generate/house_prices.py — schema in SCHEMA.md); ② a one-feature line
+(m² only) with manual slope/base sliders + "Allena"/"Un passo" (momentum GD,
+visible overshoot), orange error bars, colour-by-distance toggle; ③ an MLP
+with 1 / 2 / 2×2 sigmoid hidden neurons, a live diagram (edge width = |w|,
+blue/amber sign, each neuron draws its own activation curve along the chosen
+direction) next to predictions vs test houses along a chosen feature, with a
+"typical house" slice curve; ④ a report card of mean error on unseen houses
+per model; plus a viewer of the Python source. All maths in Python via
+PyScript 2026.7.3 MicroPython (web/py/), JS only draws; reduced motion =
+pictures update only when a run ends).
 
 Not yet built (roughly by classroom value):
 - Mobile polish for the attention grid.

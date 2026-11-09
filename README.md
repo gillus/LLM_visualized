@@ -23,6 +23,12 @@ pip install -r requirements.txt
 python generate/generate.py            # generates every example in generate/examples.py
 ```
 
+Other tabs: a word-map game, an attention animation, an architecture view, a
+"how it's trained" tour, a teacher's guide — and a **neural-network lab**
+(`web/neural-net.html`) where students train a line and a tiny network on house
+prices live in the browser, in Python via [PyScript](https://pyscript.net)
+(`python3 generate/house_prices.py` regenerates its synthetic data).
+
 ## Add an example
 
 Edit `generate/examples.py`, then `python generate/generate.py <id>`. Keep prompts
